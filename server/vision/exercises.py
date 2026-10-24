@@ -91,7 +91,8 @@ def analyze_plank(pose: Pose | None) -> Observation:
         obs.faults.append("not_in_plank_position")
         return obs
 
-    if shoulder_lift is not None and shoulder_lift < 0.05:
+    # collapsed = chest dropped to the floor; a piked plank also puts shoulders low, so exclude it
+    if shoulder_lift is not None and shoulder_lift < 0.05 and hip_dev > PLANK_PIKE:
         obs.faults.append("collapsed")
         obs.bad_joints += [j["S"][0], j["H"][0]]
     if knee_angle < PLANK_KNEE:

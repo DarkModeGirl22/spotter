@@ -1,0 +1,24 @@
+%%{init: {"theme":"neutral"}}%%
+flowchart LR
+  subgraph Phone["Phone / laptop browser"]
+    CAM["Camera<br/>(or test video)"]
+    UI["Web app<br/>coach animation + voice<br/>question buttons"]
+  end
+  subgraph AWS["AWS (eu-north-1)"]
+    URL["Lambda Function URL<br/>(HTTPS)"]
+    subgraph L["AWS Lambda · Python 3.13 · 2 GB"]
+      DET["OpenCV 5 dnn<br/>person detector"]
+      POSE["OpenCV 5 dnn<br/>pose model (33 keypoints)"]
+      AN["Form analyzers<br/>angles, hip-line deviation"]
+      AG["Coach agent loop<br/>cue → re-check → escalate"]
+    end
+    BR["Amazon Bedrock<br/>Claude (tool use)"]
+    PO["Amazon Polly<br/>neural voice"]
+    CW["CloudWatch Logs<br/>agent trace"]
+  end
+  CAM -- "JPEG every 0.4 s<br/>+ agent state" --> URL --> DET --> POSE --> AN --> AG
+  AG -- "plan change needed" --> BR -- "tool call" --> AG
+  AG -- "actions + new state" --> UI
+  UI -- "text" --> PO -- "MP3" --> UI
+  UI -- "human answer" --> AG
+  AG --> CW

@@ -1,5 +1,7 @@
 # Spotter
 
+📄 **[Technical report](docs/REPORT.md)** · 🧠 [Agent loop diagram](docs/img/agent_loop.png) · 🏗️ [Architecture](docs/img/architecture.png) · 📊 [Evaluation](docs/eval/)
+
 A talking AI workout coach. Your phone camera watches your form with **OpenCV 5**, an agent decides what to do about it, and the coach **tells you out loud**, re-checks, and changes the plan when your body needs it.
 
 Built for the OpenCV AI Competition 2026 (Agentic Vision path).
@@ -74,8 +76,11 @@ It builds a Lambda zip (OpenCV 5 for Python 3.13), creates a least-privilege rol
 ## Test
 
 ```bash
-pytest -q                                              # unit tests (synthetic keypoints)
-python -m tools.eval_clips --clips clips --out eval_out   # evaluation on labeled clips
+pytest -q                                   # unit tests (synthetic keypoints)
+python -m tools.eval_agent --out docs/eval  # agent scenarios
+bash eval/fetch_test_data.sh                # public plank test video
+python -m tools.eval_clips --clips clips --out eval_out --every-frame
+python -m tools.replay_trace --video clips/plank.gif --exercise plank --out eval_out/replay
 ```
 
 ## Responsible use

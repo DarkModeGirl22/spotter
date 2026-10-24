@@ -1,0 +1,14 @@
+%%{init: {"theme":"neutral"}}%%
+flowchart TD
+  P["① PERCEIVE · OpenCV 5<br/>pose → faults (hips_low, knees_down, no_person…)"] --> F{"Fault in 2 of<br/>last 3 frames?"}
+  F -- no --> G["Encourage on good streaks"] --> L1(("↻"))
+  F -- yes --> C["② ACT · spoken cue<br/>'Lift your hips!'"] --> R{"③ RE-CHECK<br/>within 5 s"}
+  R -- fixed --> PR["Praise<br/>'Perfect, hold it!'"] --> L2(("↻"))
+  R -- "different fault / user left" --> L3(("↻"))
+  R -- "not fixed (1st time)" --> C
+  R -- "not fixed again" --> D["④ DECIDE · Amazon Bedrock (Claude, tool use)<br/>fallback: deterministic policy"]
+  D --> V["switch_variant<br/>→ knee plank"] --> L4(("↻"))
+  D --> S["shorten_set<br/>→ 10 s more"] --> L5(("↻"))
+  D --> A["ask_user · HUMAN APPROVAL<br/>keep going / easier / stop"] --> H{"Answer<br/>within 10 s?"}
+  H -- yes --> L6(("↻"))
+  H -- no --> Z["Safe default: pause the set"]

@@ -1,0 +1,5 @@
+clip,exercise,label,start_frame,end_frame
+plank.gif,plank,good,0,34
+plank.gif,plank,hips_low,41,49
+plank.gif,plank,hips_high,57,69
+plank.gif,plank,good,82,99

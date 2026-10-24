@@ -1,8 +1,8 @@
 """Evaluate Spotter on labeled video clips (evidence for the technical report).
 
 Put clips in a folder and describe them in labels.csv:
-    clip,exercise,label
-    plank_good_1.mp4,plank,good
+    clip,exercise,label,start_frame,end_frame      (frame range is optional)
+    plank_good_1.mp4,plank,good,,
     plank_sag_1.mp4,plank,hips_low
     plank_knees_1.mp4,plank,knees_down
 
@@ -31,21 +31,24 @@ from server.vision.pose import PoseEstimator, draw_pose
 STEP_S = 0.4
 
 
-def run_clip(est: PoseEstimator, path: Path, exercise: str, out: Path):
+def run_clip(est: PoseEstimator, path: Path, exercise: str, start: int = 0, end: int | None = None,
+             every_frame: bool = False):
     cap = cv.VideoCapture(str(path))
     fps = cap.get(cv.CAP_PROP_FPS) or 30
-    stride = max(1, round(fps * STEP_S))
+    stride = 1 if every_frame else max(1, round(fps * STEP_S))
     frames, i = [], 0
     state, trace, actions = coach.new_state(exercise, duration=10_000), [], []
     while True:
         ok, img = cap.read()
         if not ok:
             break
-        if i % stride == 0:
+        if i > (end if end is not None else 10**9):
+            break
+        if i >= start and (i - start) % stride == 0:
             img = cv.resize(img, (480, round(img.shape[0] * 480 / img.shape[1])))
             pose = est.estimate(img)
             obs = analyze(exercise, pose)
-            state, acts, tr = coach.step(state, obs, i / fps)
+            state, acts, tr = coach.step(state, obs, (i - start) / fps)
             actions += acts
             trace += tr
             frames.append((img, pose, obs))
@@ -71,6 +74,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--clips", default="clips")
     ap.add_argument("--out", default="eval_out")
+    ap.add_argument("--every-frame", action="store_true", help="analyze every frame instead of one every 0.4 s")
     args = ap.parse_args()
     clips, out = Path(args.clips), Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -79,20 +83,26 @@ def main():
     with open(clips / "labels.csv") as f:
         items = list(csv.DictReader(f))
     for it in items:
-        frames, trace, actions = run_clip(est, clips / it["clip"], it["exercise"], out)
+        start = int(it.get("start_frame") or 0)
+        end = int(it["end_frame"]) if it.get("end_frame") else None
+        frames, trace, actions = run_clip(est, clips / it["clip"], it["exercise"], start, end, args.every_frame)
+        name = Path(it["clip"]).stem + (f"_{start}-{end}" if end is not None else "")
+        usable = [o for _, _, o in frames if o.in_position]
+        frame_ok = [(not o.faults) if it["label"] == "good" else (it["label"] in o.faults) for o in usable]
         latencies += [p.latency_ms for _, p, _ in frames if p]
         pred, counts = clip_label(frames)
         detected = sum(1 for _, p, _ in frames if p) / max(1, len(frames))
         cues = [a["text"] for a in actions if a["type"] == "say" and a.get("kind") == "correction"]
         fixes = [e for e in trace if e["event"] == "recheck" and e["result"] == "fixed"]
         escalations = [e for e in trace if e["event"] == "decide" and e["decision"] != "cue_and_recheck"]
-        rows.append({"clip": it["clip"], "exercise": it["exercise"], "label": it["label"], "predicted": pred,
+        rows.append({"clip": name, "exercise": it["exercise"], "label": it["label"], "predicted": pred,
                      "correct": pred == it["label"], "frames": len(frames),
+                     "frame_accuracy": round(sum(frame_ok) / len(frame_ok), 3) if frame_ok else None,
                      "person_detected_pct": round(100 * detected, 1), "frame_votes": dict(counts),
                      "corrections": len(cues), "fixes_confirmed": len(fixes), "escalations": len(escalations)})
-        (out / f"{Path(it['clip']).stem}.trace.json").write_text(json.dumps(trace, default=str, indent=1))
+        (out / f"{name}.trace.json").write_text(json.dumps(trace, default=str, indent=1))
         if pred != it["label"]:  # save failure-case frames
-            fail_dir = out / "failures" / Path(it["clip"]).stem
+            fail_dir = out / "failures" / name
             fail_dir.mkdir(parents=True, exist_ok=True)
             for k, (img, pose, obs) in enumerate(frames[:: max(1, len(frames) // 6)]):
                 vis = draw_pose(img, pose, set(obs.bad_joints)) if pose else img

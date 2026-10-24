@@ -1,0 +1,345 @@
+{
+ "results": [
+  {
+   "scenario": "good form, whole set",
+   "expected": "no corrections, only encouragement",
+   "passed": true,
+   "corrections": 0,
+   "plan_changes": 0,
+   "questions": 0,
+   "decided_by": []
+  },
+  {
+   "scenario": "one-frame glitches (noise)",
+   "expected": "single-frame faults are ignored (no false alarm)",
+   "passed": true,
+   "corrections": 0,
+   "plan_changes": 0,
+   "questions": 0,
+   "decided_by": []
+  },
+  {
+   "scenario": "hips sag, user fixes after cue",
+   "expected": "cue spoken, re-check confirms the fix, praise",
+   "passed": true,
+   "corrections": 1,
+   "plan_changes": 0,
+   "questions": 0,
+   "decided_by": [
+    "rules"
+   ]
+  },
+  {
+   "scenario": "hips sag, user never fixes",
+   "expected": "cue, repeat, then the agent changes the plan",
+   "passed": true,
+   "corrections": 4,
+   "plan_changes": 2,
+   "questions": 0,
+   "decided_by": [
+    "rules"
+   ]
+  },
+  {
+   "scenario": "knees drop repeatedly",
+   "expected": "switches to knee plank; knees on floor stop being a fault",
+   "passed": true,
+   "corrections": 2,
+   "plan_changes": 1,
+   "questions": 0,
+   "decided_by": [
+    "rules"
+   ]
+  },
+  {
+   "scenario": "user leaves the camera, answers 'stop'",
+   "expected": "agent asks; the human decides to stop",
+   "passed": true,
+   "corrections": 1,
+   "plan_changes": 0,
+   "questions": 1,
+   "decided_by": [
+    "rules"
+   ]
+  },
+  {
+   "scenario": "user leaves the camera, no answer",
+   "expected": "unanswered question -> safe pause after 10 s",
+   "passed": true,
+   "corrections": 1,
+   "plan_changes": 0,
+   "questions": 1,
+   "decided_by": [
+    "rules"
+   ]
+  },
+  {
+   "scenario": "Bedrock unavailable",
+   "expected": "fallback policy decides, no crash",
+   "passed": true,
+   "corrections": "-",
+   "plan_changes": "-",
+   "questions": "-",
+   "decided_by": [
+    "rules (ProxyConnectionError)"
+   ]
+  }
+ ],
+ "traces": {
+  "good form, whole set": [],
+  "one-frame glitches (noise)": [],
+  "hips sag, user fixes after cue": [
+   {
+    "event": "decide",
+    "t": 5.2,
+    "fault": "hips_low",
+    "decision": "cue_and_recheck",
+    "decided_by": "rules"
+   },
+   {
+    "event": "recheck",
+    "t": 8.4,
+    "fault": "hips_low",
+    "result": "fixed",
+    "seconds_to_fix": 3.2
+   }
+  ],
+  "hips sag, user never fixes": [
+   {
+    "event": "decide",
+    "t": 5.2,
+    "fault": "hips_low",
+    "decision": "cue_and_recheck",
+    "decided_by": "rules"
+   },
+   {
+    "event": "recheck",
+    "t": 10.4,
+    "fault": "hips_low",
+    "result": "not_fixed"
+   },
+   {
+    "event": "act",
+    "t": 10.4,
+    "action": "say",
+    "why": "repeat cue"
+   },
+   {
+    "event": "recheck",
+    "t": 15.6,
+    "fault": "hips_low",
+    "result": "not_fixed"
+   },
+   {
+    "event": "decide",
+    "t": 15.6,
+    "fault": "hips_low",
+    "decision": "switch_variant",
+    "input": {
+     "variant": "knee",
+     "text": "Let's switch to knee plank. Knees down, back straight!"
+    },
+    "decided_by": "rules",
+    "latency_ms": 0
+   },
+   {
+    "event": "act",
+    "t": 15.6,
+    "action": "switch_variant",
+    "args": {
+     "variant": "knee",
+     "text": "Let's switch to knee plank. Knees down, back straight!"
+    }
+   },
+   {
+    "event": "decide",
+    "t": 20.0,
+    "fault": "hips_low",
+    "decision": "cue_and_recheck",
+    "decided_by": "rules"
+   },
+   {
+    "event": "recheck",
+    "t": 25.2,
+    "fault": "hips_low",
+    "result": "not_fixed"
+   },
+   {
+    "event": "act",
+    "t": 25.2,
+    "action": "say",
+    "why": "repeat cue"
+   },
+   {
+    "event": "recheck",
+    "t": 30.4,
+    "fault": "hips_low",
+    "result": "not_fixed"
+   },
+   {
+    "event": "decide",
+    "t": 30.4,
+    "fault": "hips_low",
+    "decision": "shorten_set",
+    "input": {
+     "seconds": 10,
+     "text": "Ten more seconds, then we rest!"
+    },
+    "decided_by": "rules",
+    "latency_ms": 0
+   },
+   {
+    "event": "act",
+    "t": 30.4,
+    "action": "shorten_set",
+    "args": {
+     "seconds": 10,
+     "text": "Ten more seconds, then we rest!"
+    }
+   }
+  ],
+  "knees drop repeatedly": [
+   {
+    "event": "decide",
+    "t": 5.2,
+    "fault": "knees_down",
+    "decision": "cue_and_recheck",
+    "decided_by": "rules"
+   },
+   {
+    "event": "recheck",
+    "t": 10.4,
+    "fault": "knees_down",
+    "result": "not_fixed"
+   },
+   {
+    "event": "act",
+    "t": 10.4,
+    "action": "say",
+    "why": "repeat cue"
+   },
+   {
+    "event": "recheck",
+    "t": 15.6,
+    "fault": "knees_down",
+    "result": "not_fixed"
+   },
+   {
+    "event": "decide",
+    "t": 15.6,
+    "fault": "knees_down",
+    "decision": "switch_variant",
+    "input": {
+     "variant": "knee",
+     "text": "Let's switch to knee plank. Knees down, back straight!"
+    },
+    "decided_by": "rules",
+    "latency_ms": 0
+   },
+   {
+    "event": "act",
+    "t": 15.6,
+    "action": "switch_variant",
+    "args": {
+     "variant": "knee",
+     "text": "Let's switch to knee plank. Knees down, back straight!"
+    }
+   }
+  ],
+  "user leaves the camera, answers 'stop'": [
+   {
+    "event": "decide",
+    "t": 5.2,
+    "fault": "no_person",
+    "decision": "cue_and_recheck",
+    "decided_by": "rules"
+   },
+   {
+    "event": "recheck",
+    "t": 10.4,
+    "fault": "no_person",
+    "result": "not_fixed"
+   },
+   {
+    "event": "decide",
+    "t": 10.4,
+    "fault": "no_person",
+    "decision": "ask_user",
+    "input": {
+     "question": "I lost you. Are you okay? Keep going or stop?",
+     "options": [
+      "keep_going",
+      "stop_set"
+     ]
+    },
+    "decided_by": "rules",
+    "latency_ms": 0
+   },
+   {
+    "event": "act",
+    "t": 10.4,
+    "action": "ask_user",
+    "args": {
+     "question": "I lost you. Are you okay? Keep going or stop?",
+     "options": [
+      "keep_going",
+      "stop_set"
+     ]
+    }
+   },
+   {
+    "event": "human",
+    "t": 13.2,
+    "choice": "stop_set"
+   }
+  ],
+  "user leaves the camera, no answer": [
+   {
+    "event": "decide",
+    "t": 5.2,
+    "fault": "no_person",
+    "decision": "cue_and_recheck",
+    "decided_by": "rules"
+   },
+   {
+    "event": "recheck",
+    "t": 10.4,
+    "fault": "no_person",
+    "result": "not_fixed"
+   },
+   {
+    "event": "decide",
+    "t": 10.4,
+    "fault": "no_person",
+    "decision": "ask_user",
+    "input": {
+     "question": "I lost you. Are you okay? Keep going or stop?",
+     "options": [
+      "keep_going",
+      "stop_set"
+     ]
+    },
+    "decided_by": "rules",
+    "latency_ms": 0
+   },
+   {
+    "event": "act",
+    "t": 10.4,
+    "action": "ask_user",
+    "args": {
+     "question": "I lost you. Are you okay? Keep going or stop?",
+     "options": [
+      "keep_going",
+      "stop_set"
+     ]
+    }
+   },
+   {
+    "event": "act",
+    "t": 20.8,
+    "action": "end_set",
+    "why": "question timed out"
+   }
+  ]
+ }
+}

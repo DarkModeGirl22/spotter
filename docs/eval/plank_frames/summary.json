@@ -1,0 +1,30 @@
+{
+  "clips": 4,
+  "accuracy": 1.0,
+  "per_label": {
+    "good": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 2
+    },
+    "hips_high": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 1
+    },
+    "hips_low": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 1
+    }
+  },
+  "confusion": {
+    "good->good": 2,
+    "hips_low->hips_low": 1,
+    "hips_high->hips_high": 1
+  },
+  "pose_latency_ms": {
+    "median": 36.5,
+    "p95": 46.4
+  }
+}

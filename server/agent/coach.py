@@ -100,6 +100,14 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
         last2 = state["recent"][-2:]
         fixed = len(last2) == 2 and all(waiting["fault"] not in f for f in last2)
         still = not fixed
+        if fixed and state["recent"][-1]:
+            # the corrected fault is gone but something else is wrong now (or the user left): no praise,
+            # close this correction and let the next frames handle the new problem
+            state["awaiting_fix"] = None
+            trace.append({"event": "recheck", "t": round(t, 2), "fault": waiting["fault"],
+                          "result": "replaced_by", "now": state["recent"][-1]})
+            state["last_cue_t"] = min(state["last_cue_t"], t - CUE_COOLDOWN)
+            return state, actions, trace
         if fixed:
             state["awaiting_fix"] = None
             trace.append({"event": "recheck", "t": round(t, 2), "fault": waiting["fault"], "result": "fixed",
