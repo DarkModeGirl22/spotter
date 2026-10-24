@@ -35,9 +35,9 @@ function renderHome() {
   for (const [key, w] of Object.entries(WORKOUTS)) {
     const el = document.createElement("div");
     el.className = "card";
-    el.innerHTML = `<h2>${w.name}</h2><ol>${w.items.map((i) => `<li>${i.name}</li>`).join("")}</ol>
-      <div class="spec">4 × ${WORK}s · ${REST}s rest · ~5:30</div>
-      <button class="primary">Start ${w.name}</button>`;
+    el.innerHTML = `<div class="card-head"><h2>${w.name}</h2><span>4 MOVES · 5:30</span></div>
+      <ol>${w.items.map((i) => `<li>${i.name}<span class="dur">${WORK}s</span></li>`).join("")}</ol>
+      <button class="btn btn-red">Start workout</button>`;
     el.querySelector("button").onclick = () => start(key);
     cards.appendChild(el);
   }
@@ -173,14 +173,15 @@ function finish() {
   const avg = (a) => (a.length ? (a.reduce((x, y) => x + y, 0) / a.length) : 0);
   const rows = [
     ["Corrections spoken", stats.corrections],
-    ["Corrections that worked (re-checked)", stats.fixed],
+    ["Fixes confirmed by camera", stats.fixed],
     ["Average time to fix", stats.fixTimes.length ? avg(stats.fixTimes).toFixed(1) + " s" : "-"],
     ["Plan changes made by the agent", stats.planChanges],
     ["Questions asked to you", stats.questions],
     ["Frames analyzed", stats.frames],
     ["Average analysis time", stats.latency.length ? Math.round(avg(stats.latency)) + " ms" : "-"],
   ];
-  $("summary").innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+  $("summary").innerHTML = rows.map(([k, v], i) =>
+    `<div class="stat${i < 2 ? " hl" : ""}"><b>${v}</b><span>${k}</span></div>`).join("");
   speak("Workout done. Great job!");
 }
 
@@ -233,7 +234,7 @@ function showAsk(a) {
   for (const opt of a.options) {
     const b = document.createElement("button");
     b.textContent = ASK_LABELS[opt] || opt;
-    if (opt === "stop_set") b.className = "danger";
+    if (opt === "stop_set") b.className = "stop";
     b.onclick = () => answer(opt);
     box.appendChild(b);
   }
@@ -325,6 +326,8 @@ function tick() {
   const shown = Math.ceil(left);
   $("timer").textContent = `${Math.floor(shown / 60)}:${String(shown % 60).padStart(2, "0")}`;
   $("timer").classList.toggle("low", phase === "work" && left <= 10);
+  const total = phase === "work" ? (phaseEnd - workStart) / 1000 : 0;
+  $("setBar").style.width = total > 0 ? `${100 * (1 - left / total)}%` : "0%";
   if (left <= 0) {
     if (phase === "prep") return void (phase = "starting", enterWork());
     if (phase === "work") return endExercise();

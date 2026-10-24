@@ -203,7 +203,7 @@ class Coach {
     const s = Math.min(c.width / 400, availH / 290);
     ctx.setTransform(s, 0, 0, s, (c.width - 400 * s) / 2, top + (availH - 290 * s) / 2 - 2 * s);
     // floor line
-    ctx.fillStyle = "#000"; ctx.fillRect(10, 285, 380, 2);
+    ctx.fillStyle = "#DDDDDD"; ctx.fillRect(0, 285, 400, 3);
     const t = (performance.now() - this.t0) / 1000;
     const j = MOVES[this.move](t);
     (j.view === "side" ? drawSide : drawFront)(ctx, j, t);
