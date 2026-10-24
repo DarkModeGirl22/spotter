@@ -82,9 +82,9 @@ Real plank video (public, MIT licence, [Exercise-Correction](https://github.com/
 |---|---|---|---|
 | 12.0 s | form ok (12 s streak) | encourage | "Looking great, keep it up!" |
 | 16.0 s | `hips_low` (hip deviation +0.10) | decide: cue_and_recheck | "Lift your hips! Squeeze your belly." |
-| 20.8 s | form ok | **re-check: fixed** | "Perfect, hold it!" |
+| 20.8 s | form ok | **re-check: fixed** | "Beautiful form!" |
 | 25.2 s | `hips_high` (hip deviation −0.26) | decide: cue_and_recheck | "Hips down a little. Flat back." |
-| 30.0 s | `no_person` (standing up) | re-check: replaced_by → no praise | (none) |
+| 29.6 s | form ok | **re-check: fixed** | "Perfect, hold it!" |
 
 Full trace with per-frame metrics: `docs/eval/replay_plank/trace.json`.
 
@@ -98,11 +98,13 @@ Full trace with per-frame metrics: `docs/eval/replay_plank/trace.json`.
 |---|---|---|---|---|---|
 | 0–34 | good | 35 | 97.1 % | 34/34 | good ✅ |
 | 41–49 | hips_low | 9 | 100 % | 9/9 | hips_low ✅ |
-| 57–69 | hips_high | 13 | 100 % | 12/13 | hips_high ✅ |
+| 57–69 | hips_high | 13 | 100 % | 13/13 | hips_high ✅ |
 | 82–99 | good | 18 | 100 % | 18/18 | good ✅ |
-| **Total** | | **75** | **98.7 %** | **73/74 (98.6 %)** | **4/4** |
+| **Total** | | **75** | **98.7 %** | **74/74 (100 %)** | **4/4** |
 
-Pose latency (person detector + pose model, CPU, one core of the development container): **median 36.5 ms, p95 46.4 ms**. Lambda latency: *to be measured after deployment* (§7).
+Before the fixes in §6.4 this was 73/74 (one piked frame read as "knees down").
+
+Pose latency (person detector + pose model, CPU, one core of the development container): **median 33.8 ms, p95 49.0 ms**. Lambda latency: *to be measured after deployment* (§7).
 
 ### 6.2 Agent: task success, failure handling, human control
 
@@ -119,9 +121,45 @@ Pose latency (person detector + pose model, CPU, one core of the development con
 | user leaves the camera, no answer | unanswered question → safe pause after 10 s | ✅ | 1 | 0 | 1 |
 | Bedrock unavailable | fallback policy decides, no crash | ✅ | - | - | - |
 
-Plus 7 unit tests on synthetic keypoints (`pytest`).
+Plus 8 unit tests on synthetic keypoints (`pytest`).
 
-### 6.3 Failure cases and limitations
+### 6.3 Robustness: the same frames under real capture conditions
+
+A clean test video says little about a phone propped on a living-room floor. `python -m tools.eval_robustness` re-runs every labeled frame through the full OpenCV 5 pipeline after transforming it: mirrored, phone tilted, far away, close, dark room, motion blur, heavy JPEG compression, feet cut off. Frame accuracy, **before → after** the fixes in §6.4:
+
+| Condition | Before | After | Remaining weakness |
+|---|---|---|---|
+| original | 96 % | **99 %** | one transition frame with no person found |
+| mirrored (other side) | 96 % | **99 %** | |
+| phone tilted 10° / −10° | 95 % / 99 % | **95 % / 99 %** | 3 hips_high frames missed at +10° |
+| far away (55 % size) | 64 % | **81 %** | hips_low missed: 2/9 (keypoints too coarse) |
+| close (130 %) | 95 % | **97 %** | |
+| dark room | 67 % | **83 %** | person lost in 7 % of frames; hips_low 3/9 |
+| motion blur | 88 % | **91 %** | hips_low 2/9 (blurred ankles) |
+| low-quality JPEG | 77 % | **84 %** | hips_high 7/13 |
+| feet cut off | 93 % | **97 %** | |
+
+Full tables and an annotated picture of each failure: `docs/eval/robustness/`.
+
+**What this means for users:** hip sag is the subtlest fault, and it is the one that degrades first with distance, darkness and blur. So the app asks users to place the phone 2–3 m away in a lit room. The agent's 2-of-3-frames rule absorbs isolated misses, but not a sustained one (a far, dark camera can miss a real sag).
+
+### 6.4 Bugs found by testing, and fixes
+
+| # | Found by | Symptom | Cause | Fix |
+|---|---|---|---|---|
+| 1 | first real photo | No person ever detected | OpenCV 5's new DNN engine returns the detector outputs in a different order than 4.x | Match outputs by tensor shape (`mp_persondet.py`) |
+| 2 | real photo | Clear full-body photo, still no person | Detector score threshold 0.5 too strict (best score 0.496) | Threshold 0.35 |
+| 3 | real plank video | Piked plank ("hips high") also flagged as "collapsed" | Low shoulders in a pike look like a collapse | "Collapsed" only when hips are not piked |
+| 4 | replay trace | Coach said "Beautiful form!" when the user left the camera | Fault disappearing counted as "fixed" | Re-check passes only on a clean frame; otherwise `replaced_by`, no praise |
+| 5 | robustness test | Pike with slightly bent knees read as "knees down" (also 1 frame in the clean video) | Knee angle alone | Knees down also requires the knees near floor level |
+| 6 | robustness, far away | Small person → garbage keypoints (64 %) | Pose crop from a few pixels | When the body is small, zoom on it (crop + `cv.resize`) and detect again (→ 81 %) |
+| 7 | robustness, dark room | Person lost in 16 % of frames | Low contrast | CLAHE on the LAB lightness channel when the frame is dark (→ 7 %) |
+| 8 | robustness, blur | Misplaced ankle made a flat body look tilted, so "not in position" | One bad keypoint bends the body line | Average both body sides when they agree; fall back to shoulder→knee line when the ankle disagrees with the torso |
+| 9 | robustness, compression | Good form flagged hips_high at −0.09 | Threshold inside the noise band | Pike threshold −0.12 (real pikes measure −0.26 to −0.33), sag threshold 0.06 |
+
+Every fix is covered by a test (`tests/`) or measured by an evaluation script.
+
+### 6.5 Failure cases and limitations
 
 - **Transitions are missed:** frames 5 and 75 of the test video (the person moving between postures) return no person. The agent treats `no_person` like any fault: it reacts only if it persists, so short dropouts cause no false cue.
 - **One test video, one person:** the 98.6 % comes from one subject, one camera angle and one lighting. It shows the method works but is not a population-level accuracy. More clips (different bodies, clothes, floors) are the next step, and `tools/eval_clips.py` is ready for them.
@@ -154,7 +192,7 @@ Re-running the script updates the function in place.
 - **Human control:** the agent never stops or changes a set because a model said so alone. Stopping goes through the user, and silence means a safe pause, never "push through."
 - **Safety tone:** motivation is encouraging, never shaming. Repeated failures lead to an easier variant, not more pressure. The home screen says to stop if something hurts.
 - **Not medical advice;** not for rehabilitation without a professional.
-- **Fairness:** accuracy across body types, skin tones and clothing has not been measured yet (see 6.3). That is the main evaluation gap.
+- **Fairness:** accuracy across body types, skin tones and clothing has not been measured yet (see 6.5). That is the main evaluation gap.
 
 ## 9. How to reproduce
 
@@ -164,6 +202,7 @@ pytest -q                                   # unit tests
 python -m tools.eval_agent --out docs/eval  # agent scenarios
 bash eval/fetch_test_data.sh                # public plank test video
 python -m tools.eval_clips --clips clips --out eval_out --every-frame
+python -m tools.eval_robustness --clips clips --out eval_out/robustness
 python -m tools.replay_trace --video clips/plank.gif --exercise plank --out eval_out/replay
 uvicorn server.app:app --port 8080          # app at http://localhost:8080
 ```

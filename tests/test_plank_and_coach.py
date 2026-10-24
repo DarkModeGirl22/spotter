@@ -39,7 +39,9 @@ def test_knees_down():
 
 def test_standing_is_not_plank():
     pose = plank_pose()
-    pose.points[L_ANKLE] = [110, 700]   # body vertical
+    pose.points[L_HIP] = [105, 500]     # standing: whole body vertical
+    pose.points[L_KNEE] = [108, 600]
+    pose.points[L_ANKLE] = [110, 700]
     assert not analyze_plank(pose).in_position
 
 
@@ -74,3 +76,10 @@ def test_unanswered_question_pauses_safely():
     state["pending_question"] = {"question": "Stop?", "options": [], "asked_at": 5.0}
     state, acts, trace = coach.step(state, analyze_plank(plank_pose()), 16.0)
     assert any(a["type"] == "end_set" for a in acts)
+
+
+def test_piked_plank_with_bent_knees_is_hips_high_not_knees_down():
+    pose = plank_pose(hip_dy=-120)
+    pose.points[L_KNEE] = [330, 250]    # knees slightly bent but far above the floor
+    faults = analyze_plank(pose).faults
+    assert "hips_high" in faults and "knees_down" not in faults

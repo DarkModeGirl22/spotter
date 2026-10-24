@@ -53,8 +53,8 @@ def _joints(pose: Pose, side: str) -> dict:
 
 
 # ---------------------------------------------------------------- plank (side view)
-PLANK_SAG = 0.07     # hip below the shoulder-ankle line by > 7% of body length
-PLANK_PIKE = -0.09   # hip above the line by > 9% of body length
+PLANK_SAG = 0.06     # hip below the shoulder-ankle line by > 6% of body length
+PLANK_PIKE = -0.12   # hip above the line by > 12% of body length
 PLANK_KNEE = 150.0   # knee angle below this = knees bent / on the floor
 
 
@@ -67,9 +67,28 @@ def analyze_plank(pose: Pose | None) -> Observation:
         return Observation("plank", True, False, ["body_not_visible"], {"side": side})
 
     S, H, K, A, E = (j[k][1] for k in "SHKAE")
-    body = A - S
+    # in a side view both body sides overlap; when the far side is also visible, average the
+    # two sides so one badly placed keypoint cannot bend the body line on its own
+    o = _joints(pose, "right" if side == "left" else "left")
+    for key in "SHA":
+        if o[key][2] >= VIS and np.linalg.norm(o[key][1] - j[key][1]) < 0.15 * np.linalg.norm(j["A"][1] - j["S"][1]):
+            S, H, A = (S, H, A) if key != "S" else ((S + o["S"][1]) / 2, H, A)
+            if key == "H":
+                H = (H + o["H"][1]) / 2
+            if key == "A":
+                A = (A + o["A"][1]) / 2
+    def _tilt(v):
+        return abs(float(np.degrees(np.arctan2(v[1], abs(v[0]) + 1e-9))))  # 0 = horizontal
+
+    # if the ankle is misplaced (blur, far away) the shoulder->ankle line points the wrong way while
+    # the torso is still flat: fall back to a shoulder->knee line that keeps the torso's direction
+    torso_tilt = _tilt(H - S)
+    end, end_name = A, "ankle"
+    if _tilt(A - S) > 35.0 and torso_tilt < 35.0 and j["K"][2] >= VIS and _tilt(K - S) < 35.0:
+        end, end_name = K, "knee"
+    body = end - S
     length = float(np.linalg.norm(body)) + 1e-9
-    tilt = abs(float(np.degrees(np.arctan2(body[1], abs(body[0]) + 1e-9))))  # 0 = horizontal
+    tilt = _tilt(body)
 
     # signed vertical offset of the hip from the shoulder->ankle line (image y grows downward)
     t = np.clip(np.dot(H - S, body) / length**2, 0.0, 1.0)
@@ -77,13 +96,17 @@ def analyze_plank(pose: Pose | None) -> Observation:
     hip_dev = float((H[1] - line_y) / length)  # + = hips sagging, - = hips piked
     hip_angle = angle(S, H, K)
     knee_angle = angle(H, K, A) if j["K"][2] >= VIS else 180.0
+    # knees really on the floor: bent AND as low as the floor (feet/forearms). In a piked plank
+    # the knees bend a little too, but they are high above the floor.
+    floor_y = max(A[1], E[1] if j["E"][2] >= VIS else A[1])
+    knee_low = (floor_y - K[1]) / length < 0.12
     # shoulders far above elbows = still holding; close = collapsed to the floor
     shoulder_lift = float((E[1] - S[1]) / length) if j["E"][2] >= VIS else None
 
     metrics = {
         "side": side, "body_tilt_deg": round(tilt, 1), "hip_deviation": round(hip_dev, 3),
         "hip_angle_deg": round(hip_angle, 1), "knee_angle_deg": round(knee_angle, 1),
-        "shoulder_lift": None if shoulder_lift is None else round(shoulder_lift, 3),
+        "shoulder_lift": None if shoulder_lift is None else round(shoulder_lift, 3), "line_to": end_name,
     }
     in_position = tilt < 35.0
     obs = Observation("plank", True, in_position, [], metrics)
@@ -95,7 +118,7 @@ def analyze_plank(pose: Pose | None) -> Observation:
     if shoulder_lift is not None and shoulder_lift < 0.05 and hip_dev > PLANK_PIKE:
         obs.faults.append("collapsed")
         obs.bad_joints += [j["S"][0], j["H"][0]]
-    if knee_angle < PLANK_KNEE:
+    if knee_angle < PLANK_KNEE and knee_low:
         obs.faults.append("knees_down")
         obs.bad_joints.append(j["K"][0])
     elif hip_dev > PLANK_SAG:

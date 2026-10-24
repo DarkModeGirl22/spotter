@@ -54,20 +54,47 @@ class PoseEstimator:
             nmsThreshold=0.3, scoreThreshold=0.35, topK=5000,
         )
         self.pose = MPPose(str(models_dir / "pose_estimation_mediapipe_2023mar.onnx"), confThreshold=0.6)
+        self._clahe = cv.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
 
     def estimate(self, image: np.ndarray) -> Pose | None:
         t0 = time.perf_counter()
         h, w = image.shape[:2]
+        # dark room: boost local contrast (CLAHE on the lightness channel) before detection
+        if float(cv.cvtColor(image, cv.COLOR_BGR2GRAY).mean()) < 70:
+            lab = cv.cvtColor(image, cv.COLOR_BGR2LAB)
+            lab[:, :, 0] = self._clahe.apply(lab[:, :, 0])
+            image = cv.cvtColor(lab, cv.COLOR_LAB2BGR)
         persons = self.detector.infer(image)
         if persons is None or len(persons) == 0:
             return None
         # keep the most confident person only
         person = persons[np.argmax(persons[:, -1])]
+        offset, scale = np.zeros(2, np.float32), 1.0
+        # small person (far from the camera): zoom on them and detect again, so the pose model
+        # gets a well-aligned crop instead of a few blurry pixels
+        # the detector box is the face; the body extent comes from its mid-hip / full-body keypoints
+        kp = person[4:12].reshape(-1, 2)
+        body = float(np.linalg.norm(kp[0] - kp[1]))
+        if 2 * body < 0.45 * max(w, h):
+            cx, cy = kp[0]
+            half = body * 1.4
+            x0, y0 = int(max(0, cx - half)), int(max(0, cy - half))
+            x1, y1 = int(min(w, cx + half)), int(min(h, cy + half))
+            crop = image[y0:y1, x0:x1]
+            if crop.size:
+                scale = max(1.0, 480 / max(crop.shape[:2]))
+                zoomed = cv.resize(crop, None, fx=scale, fy=scale, interpolation=cv.INTER_CUBIC)
+                again = self.detector.infer(zoomed)
+                if again is not None and len(again):
+                    image, person = zoomed, again[np.argmax(again[:, -1])]
+                    offset = np.array([x0, y0], np.float32)
+                else:
+                    scale = 1.0
         result = self.pose.infer(image, person)
         if result is None:
             return None
         _, landmarks, _, _, _, conf = result
-        pts = landmarks[:33, :2].astype(np.float32)
+        pts = landmarks[:33, :2].astype(np.float32) / scale + offset
         vis = landmarks[:33, 3].astype(np.float32)
         return Pose(pts, vis, float(conf), (w, h), (time.perf_counter() - t0) * 1000)
 

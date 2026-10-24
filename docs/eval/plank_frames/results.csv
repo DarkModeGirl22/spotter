@@ -1,5 +1,5 @@
 clip,exercise,label,predicted,correct,frames,frame_accuracy,person_detected_pct,frame_votes,corrections,fixes_confirmed,escalations
 plank_0-34,plank,good,good,True,35,1.0,97.1,{'good': 34},0,0,0
-plank_41-49,plank,hips_low,hips_low,True,9,1.0,100.0,{'hips_low': 8},1,0,0
-plank_57-69,plank,hips_high,hips_high,True,13,0.923,100.0,"{'hips_high': 12, 'knees_down': 1}",1,0,0
+plank_41-49,plank,hips_low,hips_low,True,9,1.0,100.0,{'hips_low': 9},1,0,0
+plank_57-69,plank,hips_high,hips_high,True,13,1.0,100.0,{'hips_high': 13},1,0,0
 plank_82-99,plank,good,good,True,18,1.0,100.0,{'good': 18},0,0,0

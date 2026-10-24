@@ -1,0 +1,852 @@
+{
+ "summary": {
+  "original": {
+   "accuracy": 0.987,
+   "detected": 0.987,
+   "good": "52/53",
+   "hips_low": "9/9",
+   "hips_high": "13/13"
+  },
+  "mirrored (other side)": {
+   "accuracy": 0.987,
+   "detected": 1.0,
+   "good": "53/53",
+   "hips_low": "8/9",
+   "hips_high": "13/13"
+  },
+  "phone tilted 10\u00b0": {
+   "accuracy": 0.947,
+   "detected": 0.947,
+   "good": "52/53",
+   "hips_low": "9/9",
+   "hips_high": "10/13"
+  },
+  "phone tilted -10\u00b0": {
+   "accuracy": 0.987,
+   "detected": 0.987,
+   "good": "53/53",
+   "hips_low": "9/9",
+   "hips_high": "12/13"
+  },
+  "far away (55%)": {
+   "accuracy": 0.813,
+   "detected": 0.987,
+   "good": "46/53",
+   "hips_low": "2/9",
+   "hips_high": "13/13"
+  },
+  "close (130%)": {
+   "accuracy": 0.973,
+   "detected": 0.987,
+   "good": "52/53",
+   "hips_low": "8/9",
+   "hips_high": "13/13"
+  },
+  "dark room": {
+   "accuracy": 0.827,
+   "detected": 0.933,
+   "good": "46/53",
+   "hips_low": "3/9",
+   "hips_high": "13/13"
+  },
+  "motion blur": {
+   "accuracy": 0.907,
+   "detected": 1.0,
+   "good": "53/53",
+   "hips_low": "2/9",
+   "hips_high": "13/13"
+  },
+  "low quality JPEG": {
+   "accuracy": 0.84,
+   "detected": 0.973,
+   "good": "52/53",
+   "hips_low": "4/9",
+   "hips_high": "7/13"
+  },
+  "feet cut off": {
+   "accuracy": 0.973,
+   "detected": 0.973,
+   "good": "51/53",
+   "hips_low": "9/9",
+   "hips_high": "13/13"
+  }
+ },
+ "failures": {
+  "original": [
+   {
+    "frame": 5,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   }
+  ],
+  "mirrored (other side)": [
+   {
+    "frame": 46,
+    "truth": "hips_low",
+    "got": [
+     "knees_down"
+    ],
+    "metrics": {
+     "side": "left",
+     "body_tilt_deg": 12.3,
+     "hip_deviation": 0.153,
+     "hip_angle_deg": 160.9,
+     "knee_angle_deg": 133.0,
+     "shoulder_lift": 0.177,
+     "line_to": "ankle"
+    }
+   }
+  ],
+  "phone tilted 10\u00b0": [
+   {
+    "frame": 5,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 61,
+    "truth": "hips_high",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 64,
+    "truth": "hips_high",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 69,
+    "truth": "hips_high",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   }
+  ],
+  "phone tilted -10\u00b0": [
+   {
+    "frame": 69,
+    "truth": "hips_high",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   }
+  ],
+  "far away (55%)": [
+   {
+    "frame": 6,
+    "truth": "good",
+    "got": [
+     "knees_down"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 12.0,
+     "hip_deviation": -0.115,
+     "hip_angle_deg": 130.0,
+     "knee_angle_deg": 98.6,
+     "shoulder_lift": 0.233,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 7,
+    "truth": "good",
+    "got": [
+     "hips_high"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 21.1,
+     "hip_deviation": -0.531,
+     "hip_angle_deg": 62.1,
+     "knee_angle_deg": 153.2,
+     "shoulder_lift": 0.304,
+     "line_to": "knee"
+    }
+   },
+   {
+    "frame": 11,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 41,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 53.0,
+     "hip_deviation": -0.271,
+     "hip_angle_deg": 100.1,
+     "knee_angle_deg": 80.0,
+     "shoulder_lift": 0.569,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 42,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "left",
+     "body_tilt_deg": 37.2,
+     "hip_deviation": 0.025,
+     "hip_angle_deg": 154.6,
+     "knee_angle_deg": 140.1,
+     "shoulder_lift": 0.244,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 43,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 65.7,
+     "hip_deviation": -0.212,
+     "hip_angle_deg": 108.6,
+     "knee_angle_deg": 108.2,
+     "shoulder_lift": 0.628,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 44,
+    "truth": "hips_low",
+    "got": [
+     "knees_down"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 21.2,
+     "hip_deviation": 0.091,
+     "hip_angle_deg": 165.4,
+     "knee_angle_deg": 141.0,
+     "shoulder_lift": 0.298,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 45,
+    "truth": "hips_low",
+    "got": [
+     "knees_down"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 32.7,
+     "hip_deviation": 0.062,
+     "hip_angle_deg": 150.5,
+     "knee_angle_deg": 31.9,
+     "shoulder_lift": 0.544,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 46,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 37.3,
+     "hip_deviation": -0.021,
+     "hip_angle_deg": 150.1,
+     "knee_angle_deg": 11.9,
+     "shoulder_lift": 0.502,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 47,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 38.8,
+     "hip_deviation": -0.041,
+     "hip_angle_deg": 147.2,
+     "knee_angle_deg": 2.2,
+     "shoulder_lift": 0.579,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 86,
+    "truth": "good",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 59.9,
+     "hip_deviation": -0.235,
+     "hip_angle_deg": 75.8,
+     "knee_angle_deg": 149.9,
+     "shoulder_lift": 0.319,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 87,
+    "truth": "good",
+    "got": [
+     "hips_high"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 30.3,
+     "hip_deviation": -0.318,
+     "hip_angle_deg": 106.8,
+     "knee_angle_deg": 169.9,
+     "shoulder_lift": 0.605,
+     "line_to": "knee"
+    }
+   },
+   {
+    "frame": 88,
+    "truth": "good",
+    "got": [
+     "hips_high"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 23.5,
+     "hip_deviation": -0.132,
+     "hip_angle_deg": 156.8,
+     "knee_angle_deg": 161.9,
+     "shoulder_lift": 0.106,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 98,
+    "truth": "good",
+    "got": [
+     "body_not_visible"
+    ],
+    "metrics": {
+     "side": "right"
+    }
+   }
+  ],
+  "close (130%)": [
+   {
+    "frame": 5,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 46,
+    "truth": "hips_low",
+    "got": [],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 32.7,
+     "hip_deviation": -0.109,
+     "hip_angle_deg": 158.5,
+     "knee_angle_deg": 138.1,
+     "shoulder_lift": 0.506,
+     "line_to": "ankle"
+    }
+   }
+  ],
+  "dark room": [
+   {
+    "frame": 5,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 7,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 8,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 9,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 12,
+    "truth": "good",
+    "got": [
+     "collapsed"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 7.0,
+     "hip_deviation": -0.071,
+     "hip_angle_deg": 164.9,
+     "knee_angle_deg": 176.4,
+     "shoulder_lift": 0.045,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 43,
+    "truth": "hips_low",
+    "got": [],
+    "metrics": {
+     "side": "left",
+     "body_tilt_deg": 31.4,
+     "hip_deviation": -0.027,
+     "hip_angle_deg": 167.9,
+     "knee_angle_deg": 165.1,
+     "shoulder_lift": 0.387,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 45,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "left",
+     "body_tilt_deg": 79.4,
+     "hip_deviation": 0.073,
+     "hip_angle_deg": 109.9,
+     "knee_angle_deg": 132.6,
+     "shoulder_lift": 0.43,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 46,
+    "truth": "hips_low",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 47,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "left",
+     "body_tilt_deg": 81.6,
+     "hip_deviation": 0.064,
+     "hip_angle_deg": 131.1,
+     "knee_angle_deg": 112.3,
+     "shoulder_lift": 0.26,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 48,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "left",
+     "body_tilt_deg": 82.2,
+     "hip_deviation": 0.03,
+     "hip_angle_deg": 120.3,
+     "knee_angle_deg": 138.6,
+     "shoulder_lift": 0.313,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 49,
+    "truth": "hips_low",
+    "got": [
+     "body_not_visible"
+    ],
+    "metrics": {
+     "side": "left"
+    }
+   },
+   {
+    "frame": 82,
+    "truth": "good",
+    "got": [
+     "hips_high"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 34.5,
+     "hip_deviation": -0.261,
+     "hip_angle_deg": 110.9,
+     "knee_angle_deg": 173.0,
+     "shoulder_lift": 0.335,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 85,
+    "truth": "good",
+    "got": [
+     "collapsed"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 11.9,
+     "hip_deviation": -0.021,
+     "hip_angle_deg": 172.4,
+     "knee_angle_deg": 155.4,
+     "shoulder_lift": -0.008,
+     "line_to": "ankle"
+    }
+   }
+  ],
+  "motion blur": [
+   {
+    "frame": 43,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 59.6,
+     "hip_deviation": 0.498,
+     "hip_angle_deg": 65.6,
+     "knee_angle_deg": 148.7,
+     "shoulder_lift": 0.663,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 44,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 74.8,
+     "hip_deviation": 0.108,
+     "hip_angle_deg": 55.9,
+     "knee_angle_deg": 144.3,
+     "shoulder_lift": 1.089,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 45,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 81.4,
+     "hip_deviation": 0.218,
+     "hip_angle_deg": 64.7,
+     "knee_angle_deg": 138.7,
+     "shoulder_lift": 1.067,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 46,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 76.9,
+     "hip_deviation": 0.169,
+     "hip_angle_deg": 96.7,
+     "knee_angle_deg": 129.2,
+     "shoulder_lift": 0.641,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 47,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 68.2,
+     "hip_deviation": 0.35,
+     "hip_angle_deg": 78.9,
+     "knee_angle_deg": 121.5,
+     "shoulder_lift": 0.656,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 48,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 88.5,
+     "hip_deviation": 0.029,
+     "hip_angle_deg": 94.0,
+     "knee_angle_deg": 97.6,
+     "shoulder_lift": 0.897,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 49,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 61.8,
+     "hip_deviation": 0.424,
+     "hip_angle_deg": 64.1,
+     "knee_angle_deg": 158.3,
+     "shoulder_lift": 0.665,
+     "line_to": "ankle"
+    }
+   }
+  ],
+  "low quality JPEG": [
+   {
+    "frame": 7,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 44,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 42.8,
+     "hip_deviation": -0.042,
+     "hip_angle_deg": 133.0,
+     "knee_angle_deg": 37.7,
+     "shoulder_lift": 0.569,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 45,
+    "truth": "hips_low",
+    "got": [],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 28.6,
+     "hip_deviation": 0.039,
+     "hip_angle_deg": 162.0,
+     "knee_angle_deg": 169.5,
+     "shoulder_lift": 0.408,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 46,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 56.0,
+     "hip_deviation": -0.255,
+     "hip_angle_deg": 97.8,
+     "knee_angle_deg": 44.5,
+     "shoulder_lift": 0.836,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 48,
+    "truth": "hips_low",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 68.9,
+     "hip_deviation": -0.175,
+     "hip_angle_deg": 108.3,
+     "knee_angle_deg": 85.7,
+     "shoulder_lift": 0.745,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 49,
+    "truth": "hips_low",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 57,
+    "truth": "hips_high",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 36.7,
+     "hip_deviation": -0.011,
+     "hip_angle_deg": 179.8,
+     "knee_angle_deg": 134.3,
+     "shoulder_lift": -0.055,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 58,
+    "truth": "hips_high",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 37.4,
+     "hip_deviation": 0.0,
+     "hip_angle_deg": 178.0,
+     "knee_angle_deg": 173.1,
+     "shoulder_lift": -0.041,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 59,
+    "truth": "hips_high",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 37.3,
+     "hip_deviation": -0.008,
+     "hip_angle_deg": 175.9,
+     "knee_angle_deg": 167.2,
+     "shoulder_lift": 0.015,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 60,
+    "truth": "hips_high",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 36.5,
+     "hip_deviation": -0.009,
+     "hip_angle_deg": 161.2,
+     "knee_angle_deg": 127.3,
+     "shoulder_lift": 0.052,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 65,
+    "truth": "hips_high",
+    "got": [
+     "not_in_plank_position"
+    ],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 39.5,
+     "hip_deviation": -1.442,
+     "hip_angle_deg": 5.3,
+     "knee_angle_deg": 153.8,
+     "shoulder_lift": 0.554,
+     "line_to": "ankle"
+    }
+   },
+   {
+    "frame": 68,
+    "truth": "hips_high",
+    "got": [],
+    "metrics": {
+     "side": "right",
+     "body_tilt_deg": 22.9,
+     "hip_deviation": -0.107,
+     "hip_angle_deg": 173.7,
+     "knee_angle_deg": 42.8,
+     "shoulder_lift": 0.088,
+     "line_to": "ankle"
+    }
+   }
+  ],
+  "feet cut off": [
+   {
+    "frame": 5,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   },
+   {
+    "frame": 8,
+    "truth": "good",
+    "got": [
+     "no_person"
+    ],
+    "metrics": {}
+   }
+  ]
+ }
+}

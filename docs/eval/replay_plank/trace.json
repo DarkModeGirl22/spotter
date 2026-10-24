@@ -8,7 +8,7 @@
    "opencv_faults": [],
    "agent": [],
    "spoken": [
-    "Looking great, keep it up!"
+    "You're strong, keep going!"
    ],
    "image": "00_t012.0.jpg"
   },
@@ -46,7 +46,7 @@
     }
    ],
    "spoken": [
-    "Perfect, hold it!"
+    "Beautiful form!"
    ],
    "image": "02_t020.8.jpg"
   },
@@ -71,24 +71,22 @@
    "image": "03_t025.2.jpg"
   },
   {
-   "t": 30.0,
-   "frame": 75,
-   "opencv_faults": [
-    "no_person"
-   ],
+   "t": 29.6,
+   "frame": 74,
+   "opencv_faults": [],
    "agent": [
     {
      "event": "recheck",
-     "t": 30.0,
+     "t": 29.6,
      "fault": "hips_high",
-     "result": "replaced_by",
-     "now": [
-      "no_person"
-     ]
+     "result": "fixed",
+     "seconds_to_fix": 4.4
     }
    ],
-   "spoken": [],
-   "image": "04_t030.0.jpg"
+   "spoken": [
+    "Perfect, hold it!"
+   ],
+   "image": "04_t029.6.jpg"
   }
  ],
  "frames": [
@@ -98,13 +96,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.2,
-    "hip_deviation": -0.026,
-    "hip_angle_deg": 171.4,
-    "knee_angle_deg": 174.9,
-    "shoulder_lift": 0.193
+    "body_tilt_deg": 8.5,
+    "hip_deviation": -0.023,
+    "hip_angle_deg": 174.0,
+    "knee_angle_deg": 178.8,
+    "shoulder_lift": 0.197,
+    "line_to": "ankle"
    },
-   "pose_ms": 45.7
+   "pose_ms": 54.2
   },
   {
    "frame": 1,
@@ -112,13 +111,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.6,
-    "hip_deviation": -0.013,
-    "hip_angle_deg": 174.4,
-    "knee_angle_deg": 174.7,
-    "shoulder_lift": 0.205
+    "body_tilt_deg": 8.8,
+    "hip_deviation": -0.006,
+    "hip_angle_deg": 176.9,
+    "knee_angle_deg": 176.8,
+    "shoulder_lift": 0.211,
+    "line_to": "ankle"
    },
-   "pose_ms": 37.6
+   "pose_ms": 39.8
   },
   {
    "frame": 2,
@@ -126,13 +126,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.7,
-    "hip_deviation": -0.012,
-    "hip_angle_deg": 173.0,
-    "knee_angle_deg": 171.5,
-    "shoulder_lift": 0.209
+    "body_tilt_deg": 8.9,
+    "hip_deviation": -0.005,
+    "hip_angle_deg": 175.4,
+    "knee_angle_deg": 172.7,
+    "shoulder_lift": 0.216,
+    "line_to": "ankle"
    },
-   "pose_ms": 35.0
+   "pose_ms": 37.8
   },
   {
    "frame": 3,
@@ -140,13 +141,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.5,
-    "hip_deviation": -0.033,
-    "hip_angle_deg": 169.2,
-    "knee_angle_deg": 174.2,
-    "shoulder_lift": 0.208
+    "body_tilt_deg": 7.9,
+    "hip_deviation": -0.029,
+    "hip_angle_deg": 171.8,
+    "knee_angle_deg": 177.1,
+    "shoulder_lift": 0.213,
+    "line_to": "ankle"
    },
-   "pose_ms": 34.2
+   "pose_ms": 34.4
   },
   {
    "frame": 4,
@@ -154,13 +156,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.9,
-    "hip_deviation": -0.065,
-    "hip_angle_deg": 162.7,
-    "knee_angle_deg": 176.5,
-    "shoulder_lift": 0.212
+    "body_tilt_deg": 8.4,
+    "hip_deviation": -0.06,
+    "hip_angle_deg": 165.3,
+    "knee_angle_deg": 179.3,
+    "shoulder_lift": 0.221,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.5
+   "pose_ms": 35.3
   },
   {
    "frame": 5,
@@ -177,13 +180,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.1,
-    "hip_deviation": -0.053,
-    "hip_angle_deg": 165.2,
-    "knee_angle_deg": 175.4,
-    "shoulder_lift": 0.199
+    "body_tilt_deg": 8.5,
+    "hip_deviation": -0.047,
+    "hip_angle_deg": 168.0,
+    "knee_angle_deg": 178.4,
+    "shoulder_lift": 0.204,
+    "line_to": "ankle"
    },
-   "pose_ms": 34.3
+   "pose_ms": 35.6
   },
   {
    "frame": 7,
@@ -191,13 +195,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.1,
-    "hip_deviation": -0.068,
-    "hip_angle_deg": 163.3,
-    "knee_angle_deg": 179.1,
-    "shoulder_lift": 0.205
+    "body_tilt_deg": 8.5,
+    "hip_deviation": -0.06,
+    "hip_angle_deg": 166.8,
+    "knee_angle_deg": 177.6,
+    "shoulder_lift": 0.211,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.2
+   "pose_ms": 31.9
   },
   {
    "frame": 8,
@@ -205,13 +210,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.7,
-    "hip_deviation": -0.082,
-    "hip_angle_deg": 159.2,
-    "knee_angle_deg": 177.3,
-    "shoulder_lift": 0.213
+    "body_tilt_deg": 8.3,
+    "hip_deviation": -0.076,
+    "hip_angle_deg": 162.9,
+    "knee_angle_deg": 178.0,
+    "shoulder_lift": 0.216,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.1
+   "pose_ms": 33.0
   },
   {
    "frame": 9,
@@ -219,13 +225,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.9,
-    "hip_deviation": -0.083,
-    "hip_angle_deg": 158.7,
-    "knee_angle_deg": 176.7,
-    "shoulder_lift": 0.206
+    "body_tilt_deg": 8.7,
+    "hip_deviation": -0.075,
+    "hip_angle_deg": 161.6,
+    "knee_angle_deg": 178.8,
+    "shoulder_lift": 0.22,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.7
+   "pose_ms": 35.2
   },
   {
    "frame": 10,
@@ -233,13 +240,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.5,
-    "hip_deviation": -0.057,
-    "hip_angle_deg": 164.9,
-    "knee_angle_deg": 176.7,
-    "shoulder_lift": 0.21
+    "body_tilt_deg": 8.2,
+    "hip_deviation": -0.048,
+    "hip_angle_deg": 167.0,
+    "knee_angle_deg": 176.9,
+    "shoulder_lift": 0.226,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.1
+   "pose_ms": 34.0
   },
   {
    "frame": 11,
@@ -247,13 +255,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 6.3,
-    "hip_deviation": -0.035,
-    "hip_angle_deg": 169.8,
-    "knee_angle_deg": 176.3,
-    "shoulder_lift": 0.205
+    "body_tilt_deg": 7.7,
+    "hip_deviation": -0.027,
+    "hip_angle_deg": 171.3,
+    "knee_angle_deg": 175.1,
+    "shoulder_lift": 0.235,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.1
+   "pose_ms": 33.6
   },
   {
    "frame": 12,
@@ -261,13 +270,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 6.6,
-    "hip_deviation": -0.04,
-    "hip_angle_deg": 168.4,
-    "knee_angle_deg": 175.9,
-    "shoulder_lift": 0.206
+    "body_tilt_deg": 7.4,
+    "hip_deviation": -0.033,
+    "hip_angle_deg": 170.8,
+    "knee_angle_deg": 177.2,
+    "shoulder_lift": 0.222,
+    "line_to": "ankle"
    },
-   "pose_ms": 30.8
+   "pose_ms": 32.2
   },
   {
    "frame": 13,
@@ -275,13 +285,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.6,
-    "hip_deviation": -0.032,
-    "hip_angle_deg": 170.3,
-    "knee_angle_deg": 175.7,
-    "shoulder_lift": 0.212
+    "body_tilt_deg": 8.3,
+    "hip_deviation": -0.026,
+    "hip_angle_deg": 172.6,
+    "knee_angle_deg": 177.4,
+    "shoulder_lift": 0.226,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.5
+   "pose_ms": 32.4
   },
   {
    "frame": 14,
@@ -289,13 +300,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.5,
-    "hip_deviation": -0.025,
-    "hip_angle_deg": 172.7,
-    "knee_angle_deg": 177.4,
-    "shoulder_lift": 0.203
+    "body_tilt_deg": 7.7,
+    "hip_deviation": -0.019,
+    "hip_angle_deg": 175.1,
+    "knee_angle_deg": 179.4,
+    "shoulder_lift": 0.208,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.1
+   "pose_ms": 32.2
   },
   {
    "frame": 15,
@@ -303,13 +315,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.8,
-    "hip_deviation": -0.021,
-    "hip_angle_deg": 174.3,
-    "knee_angle_deg": 178.6,
-    "shoulder_lift": 0.204
+    "body_tilt_deg": 8.1,
+    "hip_deviation": -0.015,
+    "hip_angle_deg": 176.5,
+    "knee_angle_deg": 179.9,
+    "shoulder_lift": 0.213,
+    "line_to": "ankle"
    },
-   "pose_ms": 30.6
+   "pose_ms": 34.7
   },
   {
    "frame": 16,
@@ -317,13 +330,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.4,
-    "hip_deviation": -0.013,
-    "hip_angle_deg": 172.9,
-    "knee_angle_deg": 172.1,
-    "shoulder_lift": 0.212
+    "body_tilt_deg": 8.9,
+    "hip_deviation": -0.008,
+    "hip_angle_deg": 174.6,
+    "knee_angle_deg": 172.4,
+    "shoulder_lift": 0.225,
+    "line_to": "ankle"
    },
-   "pose_ms": 36.2
+   "pose_ms": 34.2
   },
   {
    "frame": 17,
@@ -331,13 +345,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 9.0,
-    "hip_deviation": -0.014,
-    "hip_angle_deg": 173.5,
-    "knee_angle_deg": 173.6,
-    "shoulder_lift": 0.219
+    "body_tilt_deg": 9.1,
+    "hip_deviation": -0.008,
+    "hip_angle_deg": 176.3,
+    "knee_angle_deg": 176.2,
+    "shoulder_lift": 0.223,
+    "line_to": "ankle"
    },
-   "pose_ms": 30.8
+   "pose_ms": 33.1
   },
   {
    "frame": 18,
@@ -345,13 +360,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.6,
-    "hip_deviation": -0.017,
-    "hip_angle_deg": 170.9,
-    "knee_angle_deg": 169.7,
-    "shoulder_lift": 0.218
+    "body_tilt_deg": 9.0,
+    "hip_deviation": -0.01,
+    "hip_angle_deg": 173.5,
+    "knee_angle_deg": 171.5,
+    "shoulder_lift": 0.226,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.6
+   "pose_ms": 32.5
   },
   {
    "frame": 19,
@@ -359,13 +375,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.3,
-    "hip_deviation": -0.014,
-    "hip_angle_deg": 174.7,
-    "knee_angle_deg": 175.9,
-    "shoulder_lift": 0.217
+    "body_tilt_deg": 8.4,
+    "hip_deviation": -0.008,
+    "hip_angle_deg": 177.3,
+    "knee_angle_deg": 178.6,
+    "shoulder_lift": 0.221,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.5
+   "pose_ms": 32.4
   },
   {
    "frame": 20,
@@ -373,13 +390,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.6,
-    "hip_deviation": -0.015,
-    "hip_angle_deg": 173.8,
-    "knee_angle_deg": 174.6,
-    "shoulder_lift": 0.213
+    "body_tilt_deg": 8.7,
+    "hip_deviation": -0.007,
+    "hip_angle_deg": 176.1,
+    "knee_angle_deg": 175.5,
+    "shoulder_lift": 0.219,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.2
+   "pose_ms": 33.2
   },
   {
    "frame": 21,
@@ -388,12 +406,13 @@
    "metrics": {
     "side": "right",
     "body_tilt_deg": 8.9,
-    "hip_deviation": -0.017,
-    "hip_angle_deg": 171.4,
-    "knee_angle_deg": 170.5,
-    "shoulder_lift": 0.211
+    "hip_deviation": -0.009,
+    "hip_angle_deg": 173.4,
+    "knee_angle_deg": 170.8,
+    "shoulder_lift": 0.218,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.7
+   "pose_ms": 33.1
   },
   {
    "frame": 22,
@@ -401,13 +420,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.8,
-    "hip_deviation": -0.017,
-    "hip_angle_deg": 173.0,
-    "knee_angle_deg": 173.8,
-    "shoulder_lift": 0.213
+    "body_tilt_deg": 9.3,
+    "hip_deviation": -0.011,
+    "hip_angle_deg": 175.2,
+    "knee_angle_deg": 175.5,
+    "shoulder_lift": 0.224,
+    "line_to": "ankle"
    },
-   "pose_ms": 34.7
+   "pose_ms": 35.0
   },
   {
    "frame": 23,
@@ -415,13 +435,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 9.0,
-    "hip_deviation": -0.017,
-    "hip_angle_deg": 173.0,
-    "knee_angle_deg": 174.0,
-    "shoulder_lift": 0.209
+    "body_tilt_deg": 9.3,
+    "hip_deviation": -0.011,
+    "hip_angle_deg": 175.3,
+    "knee_angle_deg": 175.8,
+    "shoulder_lift": 0.218,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.0
+   "pose_ms": 34.0
   },
   {
    "frame": 24,
@@ -429,13 +450,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.0,
-    "hip_deviation": -0.015,
-    "hip_angle_deg": 173.9,
-    "knee_angle_deg": 174.7,
-    "shoulder_lift": 0.21
+    "body_tilt_deg": 8.4,
+    "hip_deviation": -0.009,
+    "hip_angle_deg": 176.2,
+    "knee_angle_deg": 176.2,
+    "shoulder_lift": 0.219,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.5
+   "pose_ms": 32.9
   },
   {
    "frame": 25,
@@ -443,13 +465,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.6,
-    "hip_deviation": -0.011,
-    "hip_angle_deg": 172.5,
-    "knee_angle_deg": 169.9,
-    "shoulder_lift": 0.202
+    "body_tilt_deg": 8.8,
+    "hip_deviation": -0.005,
+    "hip_angle_deg": 174.9,
+    "knee_angle_deg": 171.7,
+    "shoulder_lift": 0.207,
+    "line_to": "ankle"
    },
-   "pose_ms": 34.3
+   "pose_ms": 35.5
   },
   {
    "frame": 26,
@@ -457,13 +480,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.2,
-    "hip_deviation": -0.008,
-    "hip_angle_deg": 175.5,
-    "knee_angle_deg": 174.4,
-    "shoulder_lift": 0.209
+    "body_tilt_deg": 8.4,
+    "hip_deviation": -0.001,
+    "hip_angle_deg": 177.9,
+    "knee_angle_deg": 176.3,
+    "shoulder_lift": 0.214,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.6
+   "pose_ms": 38.9
   },
   {
    "frame": 27,
@@ -471,13 +495,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.5,
-    "hip_deviation": -0.009,
-    "hip_angle_deg": 174.7,
-    "knee_angle_deg": 173.5,
-    "shoulder_lift": 0.21
+    "body_tilt_deg": 8.8,
+    "hip_deviation": -0.002,
+    "hip_angle_deg": 177.1,
+    "knee_angle_deg": 175.0,
+    "shoulder_lift": 0.218,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.7
+   "pose_ms": 33.6
   },
   {
    "frame": 28,
@@ -485,13 +510,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.2,
-    "hip_deviation": -0.013,
-    "hip_angle_deg": 173.4,
-    "knee_angle_deg": 173.0,
-    "shoulder_lift": 0.217
+    "body_tilt_deg": 8.5,
+    "hip_deviation": -0.007,
+    "hip_angle_deg": 175.7,
+    "knee_angle_deg": 174.6,
+    "shoulder_lift": 0.225,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.3
+   "pose_ms": 33.0
   },
   {
    "frame": 29,
@@ -500,12 +526,13 @@
    "metrics": {
     "side": "right",
     "body_tilt_deg": 9.2,
-    "hip_deviation": -0.013,
-    "hip_angle_deg": 174.4,
-    "knee_angle_deg": 174.8,
-    "shoulder_lift": 0.207
+    "hip_deviation": -0.007,
+    "hip_angle_deg": 177.2,
+    "knee_angle_deg": 177.6,
+    "shoulder_lift": 0.208,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.8
+   "pose_ms": 32.2
   },
   {
    "frame": 30,
@@ -513,13 +540,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.2,
-    "hip_deviation": -0.013,
-    "hip_angle_deg": 174.7,
-    "knee_angle_deg": 175.3,
-    "shoulder_lift": 0.211
+    "body_tilt_deg": 8.5,
+    "hip_deviation": -0.007,
+    "hip_angle_deg": 176.8,
+    "knee_angle_deg": 176.8,
+    "shoulder_lift": 0.22,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.0
+   "pose_ms": 33.7
   },
   {
    "frame": 31,
@@ -527,13 +555,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.3,
-    "hip_deviation": -0.016,
-    "hip_angle_deg": 174.1,
-    "knee_angle_deg": 175.7,
-    "shoulder_lift": 0.222
+    "body_tilt_deg": 8.7,
+    "hip_deviation": -0.009,
+    "hip_angle_deg": 176.6,
+    "knee_angle_deg": 177.6,
+    "shoulder_lift": 0.232,
+    "line_to": "ankle"
    },
-   "pose_ms": 34.1
+   "pose_ms": 33.7
   },
   {
    "frame": 32,
@@ -541,13 +570,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.3,
-    "hip_deviation": -0.019,
-    "hip_angle_deg": 172.8,
-    "knee_angle_deg": 174.4,
-    "shoulder_lift": 0.211
+    "body_tilt_deg": 8.7,
+    "hip_deviation": -0.013,
+    "hip_angle_deg": 174.7,
+    "knee_angle_deg": 175.4,
+    "shoulder_lift": 0.221,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.3
+   "pose_ms": 31.8
   },
   {
    "frame": 33,
@@ -555,13 +585,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 9.2,
-    "hip_deviation": -0.009,
-    "hip_angle_deg": 173.0,
-    "knee_angle_deg": 170.4,
-    "shoulder_lift": 0.214
+    "body_tilt_deg": 9.5,
+    "hip_deviation": -0.004,
+    "hip_angle_deg": 175.3,
+    "knee_angle_deg": 172.0,
+    "shoulder_lift": 0.221,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.0
+   "pose_ms": 33.8
   },
   {
    "frame": 34,
@@ -569,13 +600,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.1,
-    "hip_deviation": -0.011,
-    "hip_angle_deg": 175.6,
-    "knee_angle_deg": 176.3,
-    "shoulder_lift": 0.206
+    "body_tilt_deg": 8.2,
+    "hip_deviation": -0.005,
+    "hip_angle_deg": 177.9,
+    "knee_angle_deg": 178.3,
+    "shoulder_lift": 0.21,
+    "line_to": "ankle"
    },
-   "pose_ms": 36.1
+   "pose_ms": 35.0
   },
   {
    "frame": 35,
@@ -583,13 +615,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.9,
-    "hip_deviation": -0.004,
-    "hip_angle_deg": 173.9,
-    "knee_angle_deg": 169.6,
-    "shoulder_lift": 0.209
+    "body_tilt_deg": 9.3,
+    "hip_deviation": 0.001,
+    "hip_angle_deg": 176.3,
+    "knee_angle_deg": 171.8,
+    "shoulder_lift": 0.216,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.3
+   "pose_ms": 32.1
   },
   {
    "frame": 36,
@@ -597,13 +630,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 9.3,
-    "hip_deviation": -0.002,
-    "hip_angle_deg": 175.8,
-    "knee_angle_deg": 172.8,
-    "shoulder_lift": 0.21
+    "body_tilt_deg": 9.4,
+    "hip_deviation": 0.004,
+    "hip_angle_deg": 177.1,
+    "knee_angle_deg": 172.3,
+    "shoulder_lift": 0.219,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.2
+   "pose_ms": 35.7
   },
   {
    "frame": 37,
@@ -611,27 +645,31 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 9.2,
-    "hip_deviation": 0.03,
-    "hip_angle_deg": 175.7,
-    "knee_angle_deg": 174.2,
-    "shoulder_lift": 0.189
+    "body_tilt_deg": 9.6,
+    "hip_deviation": 0.037,
+    "hip_angle_deg": 174.8,
+    "knee_angle_deg": 172.3,
+    "shoulder_lift": 0.203,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.9
+   "pose_ms": 34.0
   },
   {
    "frame": 38,
    "t": 15.2,
-   "faults": [],
+   "faults": [
+    "hips_low"
+   ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 9.0,
-    "hip_deviation": 0.057,
-    "hip_angle_deg": 170.3,
-    "knee_angle_deg": 171.9,
-    "shoulder_lift": 0.173
+    "body_tilt_deg": 9.1,
+    "hip_deviation": 0.065,
+    "hip_angle_deg": 169.3,
+    "knee_angle_deg": 170.2,
+    "shoulder_lift": 0.182,
+    "line_to": "ankle"
    },
-   "pose_ms": 34.2
+   "pose_ms": 35.7
   },
   {
    "frame": 39,
@@ -641,13 +679,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.3,
-    "hip_deviation": 0.076,
-    "hip_angle_deg": 166.3,
-    "knee_angle_deg": 170.3,
-    "shoulder_lift": 0.178
+    "body_tilt_deg": 8.6,
+    "hip_deviation": 0.081,
+    "hip_angle_deg": 164.8,
+    "knee_angle_deg": 170.5,
+    "shoulder_lift": 0.183,
+    "line_to": "ankle"
    },
-   "pose_ms": 37.3
+   "pose_ms": 34.5
   },
   {
    "frame": 40,
@@ -657,13 +696,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.6,
-    "hip_deviation": 0.095,
-    "hip_angle_deg": 162.6,
-    "knee_angle_deg": 168.9,
-    "shoulder_lift": 0.162
+    "body_tilt_deg": 8.2,
+    "hip_deviation": 0.106,
+    "hip_angle_deg": 161.7,
+    "knee_angle_deg": 164.7,
+    "shoulder_lift": 0.184,
+    "line_to": "ankle"
    },
-   "pose_ms": 35.8
+   "pose_ms": 33.9
   },
   {
    "frame": 41,
@@ -673,13 +713,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 9.4,
-    "hip_deviation": 0.096,
-    "hip_angle_deg": 161.4,
-    "knee_angle_deg": 170.7,
-    "shoulder_lift": 0.18
+    "body_tilt_deg": 10.0,
+    "hip_deviation": 0.102,
+    "hip_angle_deg": 160.5,
+    "knee_angle_deg": 169.2,
+    "shoulder_lift": 0.195,
+    "line_to": "ankle"
    },
-   "pose_ms": 34.9
+   "pose_ms": 30.3
   },
   {
    "frame": 42,
@@ -689,13 +730,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 11.8,
-    "hip_deviation": 0.103,
-    "hip_angle_deg": 157.5,
-    "knee_angle_deg": 175.7,
-    "shoulder_lift": 0.174
+    "body_tilt_deg": 13.0,
+    "hip_deviation": 0.111,
+    "hip_angle_deg": 158.2,
+    "knee_angle_deg": 170.1,
+    "shoulder_lift": 0.207,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.4
+   "pose_ms": 33.5
   },
   {
    "frame": 43,
@@ -705,13 +747,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 11.6,
-    "hip_deviation": 0.102,
-    "hip_angle_deg": 157.9,
-    "knee_angle_deg": 175.5,
-    "shoulder_lift": 0.182
+    "body_tilt_deg": 13.2,
+    "hip_deviation": 0.111,
+    "hip_angle_deg": 158.2,
+    "knee_angle_deg": 170.2,
+    "shoulder_lift": 0.218,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.6
+   "pose_ms": 31.7
   },
   {
    "frame": 44,
@@ -721,13 +764,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 11.0,
-    "hip_deviation": 0.112,
-    "hip_angle_deg": 160.1,
-    "knee_angle_deg": 166.4,
-    "shoulder_lift": 0.201
+    "body_tilt_deg": 12.9,
+    "hip_deviation": 0.121,
+    "hip_angle_deg": 160.9,
+    "knee_angle_deg": 158.9,
+    "shoulder_lift": 0.248,
+    "line_to": "ankle"
    },
-   "pose_ms": 35.4
+   "pose_ms": 31.8
   },
   {
    "frame": 45,
@@ -737,13 +781,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 10.4,
-    "hip_deviation": 0.1,
-    "hip_angle_deg": 155.4,
-    "knee_angle_deg": 178.8,
-    "shoulder_lift": 0.172
+    "body_tilt_deg": 12.0,
+    "hip_deviation": 0.115,
+    "hip_angle_deg": 154.7,
+    "knee_angle_deg": 175.3,
+    "shoulder_lift": 0.213,
+    "line_to": "ankle"
    },
-   "pose_ms": 30.6
+   "pose_ms": 30.0
   },
   {
    "frame": 46,
@@ -753,29 +798,31 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 11.2,
-    "hip_deviation": 0.097,
-    "hip_angle_deg": 157.0,
-    "knee_angle_deg": 179.8,
-    "shoulder_lift": 0.192
+    "body_tilt_deg": 12.3,
+    "hip_deviation": 0.107,
+    "hip_angle_deg": 156.6,
+    "knee_angle_deg": 175.8,
+    "shoulder_lift": 0.221,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.1
+   "pose_ms": 31.2
   },
   {
    "frame": 47,
    "t": 18.8,
    "faults": [
-    "not_in_plank_position"
+    "hips_low"
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 41.7,
-    "hip_deviation": -0.062,
-    "hip_angle_deg": 136.3,
-    "knee_angle_deg": 6.5,
-    "shoulder_lift": 0.506
+    "body_tilt_deg": 23.1,
+    "hip_deviation": 0.112,
+    "hip_angle_deg": 157.9,
+    "knee_angle_deg": 170.6,
+    "shoulder_lift": 0.255,
+    "line_to": "ankle"
    },
-   "pose_ms": 30.0
+   "pose_ms": 49.3
   },
   {
    "frame": 48,
@@ -785,13 +832,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 15.6,
-    "hip_deviation": 0.111,
-    "hip_angle_deg": 153.2,
-    "knee_angle_deg": 179.3,
-    "shoulder_lift": 0.186
+    "body_tilt_deg": 16.2,
+    "hip_deviation": 0.119,
+    "hip_angle_deg": 153.3,
+    "knee_angle_deg": 176.4,
+    "shoulder_lift": 0.209,
+    "line_to": "ankle"
    },
-   "pose_ms": 36.0
+   "pose_ms": 32.0
   },
   {
    "frame": 49,
@@ -801,13 +849,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 10.4,
-    "hip_deviation": 0.104,
-    "hip_angle_deg": 157.2,
-    "knee_angle_deg": 175.9,
-    "shoulder_lift": 0.19
+    "body_tilt_deg": 12.0,
+    "hip_deviation": 0.115,
+    "hip_angle_deg": 157.5,
+    "knee_angle_deg": 170.0,
+    "shoulder_lift": 0.231,
+    "line_to": "ankle"
    },
-   "pose_ms": 36.2
+   "pose_ms": 29.9
   },
   {
    "frame": 50,
@@ -817,13 +866,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 10.0,
-    "hip_deviation": 0.107,
-    "hip_angle_deg": 158.9,
-    "knee_angle_deg": 170.9,
-    "shoulder_lift": 0.183
+    "body_tilt_deg": 11.5,
+    "hip_deviation": 0.117,
+    "hip_angle_deg": 159.2,
+    "knee_angle_deg": 165.1,
+    "shoulder_lift": 0.222,
+    "line_to": "ankle"
    },
-   "pose_ms": 40.8
+   "pose_ms": 30.4
   },
   {
    "frame": 51,
@@ -831,13 +881,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.3,
-    "hip_deviation": 0.046,
-    "hip_angle_deg": 171.0,
-    "knee_angle_deg": 175.6,
-    "shoulder_lift": 0.133
+    "body_tilt_deg": 7.7,
+    "hip_deviation": 0.052,
+    "hip_angle_deg": 169.4,
+    "knee_angle_deg": 176.0,
+    "shoulder_lift": 0.127,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.6
+   "pose_ms": 31.6
   },
   {
    "frame": 52,
@@ -845,13 +896,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.8,
-    "hip_deviation": -0.039,
-    "hip_angle_deg": 169.0,
-    "knee_angle_deg": 176.7,
-    "shoulder_lift": 0.177
+    "body_tilt_deg": 8.1,
+    "hip_deviation": -0.033,
+    "hip_angle_deg": 171.9,
+    "knee_angle_deg": 179.8,
+    "shoulder_lift": 0.181,
+    "line_to": "ankle"
    },
-   "pose_ms": 29.6
+   "pose_ms": 31.0
   },
   {
    "frame": 53,
@@ -861,13 +913,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.2,
-    "hip_deviation": -0.137,
-    "hip_angle_deg": 148.9,
-    "knee_angle_deg": 177.8,
-    "shoulder_lift": 0.195
+    "body_tilt_deg": 8.9,
+    "hip_deviation": -0.127,
+    "hip_angle_deg": 153.1,
+    "knee_angle_deg": 173.7,
+    "shoulder_lift": 0.212,
+    "line_to": "ankle"
    },
-   "pose_ms": 29.7
+   "pose_ms": 34.0
   },
   {
    "frame": 54,
@@ -877,11 +930,12 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.2,
-    "hip_deviation": -0.205,
-    "hip_angle_deg": 137.9,
-    "knee_angle_deg": 171.5,
-    "shoulder_lift": 0.197
+    "body_tilt_deg": 8.2,
+    "hip_deviation": -0.199,
+    "hip_angle_deg": 141.9,
+    "knee_angle_deg": 165.1,
+    "shoulder_lift": 0.217,
+    "line_to": "ankle"
    },
    "pose_ms": 30.3
   },
@@ -893,13 +947,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.6,
-    "hip_deviation": -0.264,
-    "hip_angle_deg": 129.1,
-    "knee_angle_deg": 161.9,
-    "shoulder_lift": -0.089
+    "body_tilt_deg": 7.7,
+    "hip_deviation": -0.256,
+    "hip_angle_deg": 131.8,
+    "knee_angle_deg": 158.9,
+    "shoulder_lift": -0.105,
+    "line_to": "ankle"
    },
-   "pose_ms": 34.4
+   "pose_ms": 30.5
   },
   {
    "frame": 56,
@@ -909,13 +964,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.6,
-    "hip_deviation": -0.25,
-    "hip_angle_deg": 121.1,
-    "knee_angle_deg": 176.1,
-    "shoulder_lift": -0.082
+    "body_tilt_deg": 7.8,
+    "hip_deviation": -0.253,
+    "hip_angle_deg": 123.9,
+    "knee_angle_deg": 177.2,
+    "shoulder_lift": -0.115,
+    "line_to": "ankle"
    },
-   "pose_ms": 29.9
+   "pose_ms": 32.7
   },
   {
    "frame": 57,
@@ -925,13 +981,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.0,
-    "hip_deviation": -0.265,
-    "hip_angle_deg": 120.3,
-    "knee_angle_deg": 179.3,
-    "shoulder_lift": -0.061
+    "body_tilt_deg": 6.8,
+    "hip_deviation": -0.262,
+    "hip_angle_deg": 123.4,
+    "knee_angle_deg": 176.4,
+    "shoulder_lift": -0.086,
+    "line_to": "ankle"
    },
-   "pose_ms": 29.4
+   "pose_ms": 31.4
   },
   {
    "frame": 58,
@@ -941,13 +998,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.7,
-    "hip_deviation": -0.268,
-    "hip_angle_deg": 119.9,
-    "knee_angle_deg": 180.0,
-    "shoulder_lift": -0.108
+    "body_tilt_deg": 7.1,
+    "hip_deviation": -0.265,
+    "hip_angle_deg": 123.2,
+    "knee_angle_deg": 174.1,
+    "shoulder_lift": -0.13,
+    "line_to": "ankle"
    },
-   "pose_ms": 29.3
+   "pose_ms": 32.5
   },
   {
    "frame": 59,
@@ -957,13 +1015,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 6.8,
-    "hip_deviation": -0.265,
-    "hip_angle_deg": 120.2,
-    "knee_angle_deg": 178.6,
-    "shoulder_lift": -0.068
+    "body_tilt_deg": 6.5,
+    "hip_deviation": -0.268,
+    "hip_angle_deg": 124.1,
+    "knee_angle_deg": 172.5,
+    "shoulder_lift": -0.098,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.1
+   "pose_ms": 30.5
   },
   {
    "frame": 60,
@@ -973,13 +1032,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.0,
-    "hip_deviation": -0.269,
-    "hip_angle_deg": 122.9,
-    "knee_angle_deg": 173.3,
-    "shoulder_lift": -0.116
+    "body_tilt_deg": 5.8,
+    "hip_deviation": -0.259,
+    "hip_angle_deg": 126.1,
+    "knee_angle_deg": 169.7,
+    "shoulder_lift": -0.137,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.3
+   "pose_ms": 31.9
   },
   {
    "frame": 61,
@@ -989,13 +1049,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 9.5,
-    "hip_deviation": -0.28,
-    "hip_angle_deg": 124.8,
-    "knee_angle_deg": 162.4,
-    "shoulder_lift": -0.1
+    "body_tilt_deg": 7.9,
+    "hip_deviation": -0.273,
+    "hip_angle_deg": 127.8,
+    "knee_angle_deg": 158.7,
+    "shoulder_lift": -0.127,
+    "line_to": "ankle"
    },
-   "pose_ms": 29.8
+   "pose_ms": 32.3
   },
   {
    "frame": 62,
@@ -1005,13 +1066,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 6.5,
-    "hip_deviation": -0.26,
-    "hip_angle_deg": 127.4,
-    "knee_angle_deg": 166.0,
-    "shoulder_lift": -0.117
+    "body_tilt_deg": 4.7,
+    "hip_deviation": -0.269,
+    "hip_angle_deg": 130.4,
+    "knee_angle_deg": 155.0,
+    "shoulder_lift": -0.158,
+    "line_to": "ankle"
    },
-   "pose_ms": 29.3
+   "pose_ms": 30.9
   },
   {
    "frame": 63,
@@ -1021,13 +1083,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.2,
-    "hip_deviation": -0.274,
-    "hip_angle_deg": 124.7,
-    "knee_angle_deg": 166.0,
-    "shoulder_lift": -0.101
+    "body_tilt_deg": 7.3,
+    "hip_deviation": -0.277,
+    "hip_angle_deg": 128.5,
+    "knee_angle_deg": 156.6,
+    "shoulder_lift": -0.125,
+    "line_to": "ankle"
    },
-   "pose_ms": 30.7
+   "pose_ms": 31.5
   },
   {
    "frame": 64,
@@ -1037,13 +1100,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.5,
-    "hip_deviation": -0.284,
-    "hip_angle_deg": 123.4,
-    "knee_angle_deg": 166.1,
-    "shoulder_lift": 0.053
+    "body_tilt_deg": 6.8,
+    "hip_deviation": -0.289,
+    "hip_angle_deg": 127.0,
+    "knee_angle_deg": 156.1,
+    "shoulder_lift": 0.023,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.9
+   "pose_ms": 33.1
   },
   {
    "frame": 65,
@@ -1053,13 +1117,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 11.4,
-    "hip_deviation": -0.327,
-    "hip_angle_deg": 122.1,
-    "knee_angle_deg": 151.4,
-    "shoulder_lift": 0.035
+    "body_tilt_deg": 8.7,
+    "hip_deviation": -0.325,
+    "hip_angle_deg": 125.4,
+    "knee_angle_deg": 144.6,
+    "shoulder_lift": 0.011,
+    "line_to": "ankle"
    },
-   "pose_ms": 30.4
+   "pose_ms": 30.2
   },
   {
    "frame": 66,
@@ -1069,13 +1134,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 6.1,
-    "hip_deviation": -0.279,
-    "hip_angle_deg": 122.8,
-    "knee_angle_deg": 171.6,
-    "shoulder_lift": 0.034
+    "body_tilt_deg": 4.9,
+    "hip_deviation": -0.276,
+    "hip_angle_deg": 126.8,
+    "knee_angle_deg": 164.4,
+    "shoulder_lift": 0.007,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.5
+   "pose_ms": 31.1
   },
   {
    "frame": 67,
@@ -1085,29 +1151,31 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 10.3,
+    "body_tilt_deg": 9.5,
     "hip_deviation": -0.302,
-    "hip_angle_deg": 125.0,
-    "knee_angle_deg": 154.4,
-    "shoulder_lift": -0.099
+    "hip_angle_deg": 128.3,
+    "knee_angle_deg": 146.0,
+    "shoulder_lift": -0.12,
+    "line_to": "ankle"
    },
-   "pose_ms": 30.5
+   "pose_ms": 32.6
   },
   {
    "frame": 68,
    "t": 27.2,
    "faults": [
-    "knees_down"
+    "hips_high"
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 11.6,
-    "hip_deviation": -0.314,
-    "hip_angle_deg": 126.6,
-    "knee_angle_deg": 144.0,
-    "shoulder_lift": -0.11
+    "body_tilt_deg": 8.3,
+    "hip_deviation": -0.312,
+    "hip_angle_deg": 130.2,
+    "knee_angle_deg": 135.8,
+    "shoulder_lift": -0.148,
+    "line_to": "ankle"
    },
-   "pose_ms": 30.4
+   "pose_ms": 31.4
   },
   {
    "frame": 69,
@@ -1117,13 +1185,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 6.9,
-    "hip_deviation": -0.277,
-    "hip_angle_deg": 126.0,
-    "knee_angle_deg": 164.1,
-    "shoulder_lift": -0.065
+    "body_tilt_deg": 6.2,
+    "hip_deviation": -0.278,
+    "hip_angle_deg": 130.2,
+    "knee_angle_deg": 153.8,
+    "shoulder_lift": -0.096,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.4
+   "pose_ms": 32.3
   },
   {
    "frame": 70,
@@ -1133,13 +1202,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 6.0,
-    "hip_deviation": -0.233,
-    "hip_angle_deg": 132.0,
-    "knee_angle_deg": 169.3,
-    "shoulder_lift": -0.116
+    "body_tilt_deg": 5.2,
+    "hip_deviation": -0.24,
+    "hip_angle_deg": 135.9,
+    "knee_angle_deg": 158.3,
+    "shoulder_lift": -0.155,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.1
+   "pose_ms": 31.0
   },
   {
    "frame": 71,
@@ -1149,13 +1219,14 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.7,
-    "hip_deviation": -0.221,
-    "hip_angle_deg": 128.0,
-    "knee_angle_deg": 177.0,
-    "shoulder_lift": 0.076
+    "body_tilt_deg": 9.3,
+    "hip_deviation": -0.215,
+    "hip_angle_deg": 133.1,
+    "knee_angle_deg": 175.8,
+    "shoulder_lift": 0.074,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.0
+   "pose_ms": 31.5
   },
   {
    "frame": 72,
@@ -1165,29 +1236,29 @@
    ],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.8,
-    "hip_deviation": -0.169,
-    "hip_angle_deg": 139.5,
-    "knee_angle_deg": 178.0,
-    "shoulder_lift": 0.205
+    "body_tilt_deg": 8.1,
+    "hip_deviation": -0.158,
+    "hip_angle_deg": 143.8,
+    "knee_angle_deg": 178.5,
+    "shoulder_lift": 0.221,
+    "line_to": "ankle"
    },
-   "pose_ms": 30.5
+   "pose_ms": 32.2
   },
   {
    "frame": 73,
    "t": 29.2,
-   "faults": [
-    "hips_high"
-   ],
+   "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.3,
-    "hip_deviation": -0.117,
-    "hip_angle_deg": 152.0,
-    "knee_angle_deg": 179.1,
-    "shoulder_lift": 0.191
+    "body_tilt_deg": 8.1,
+    "hip_deviation": -0.11,
+    "hip_angle_deg": 156.4,
+    "knee_angle_deg": 175.2,
+    "shoulder_lift": 0.198,
+    "line_to": "ankle"
    },
-   "pose_ms": 34.7
+   "pose_ms": 36.1
   },
   {
    "frame": 74,
@@ -1195,13 +1266,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.5,
-    "hip_deviation": -0.086,
-    "hip_angle_deg": 158.9,
-    "knee_angle_deg": 178.7,
-    "shoulder_lift": 0.203
+    "body_tilt_deg": 8.2,
+    "hip_deviation": -0.079,
+    "hip_angle_deg": 162.0,
+    "knee_angle_deg": 178.2,
+    "shoulder_lift": 0.215,
+    "line_to": "ankle"
    },
-   "pose_ms": 34.7
+   "pose_ms": 41.2
   },
   {
    "frame": 75,
@@ -1218,13 +1290,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.4,
-    "hip_deviation": -0.031,
-    "hip_angle_deg": 170.8,
-    "knee_angle_deg": 176.0,
-    "shoulder_lift": 0.202
+    "body_tilt_deg": 7.8,
+    "hip_deviation": -0.026,
+    "hip_angle_deg": 173.4,
+    "knee_angle_deg": 179.3,
+    "shoulder_lift": 0.208,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.1
+   "pose_ms": 39.8
   },
   {
    "frame": 77,
@@ -1232,13 +1305,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.5,
-    "hip_deviation": -0.026,
-    "hip_angle_deg": 172.5,
-    "knee_angle_deg": 177.1,
-    "shoulder_lift": 0.187
+    "body_tilt_deg": 7.6,
+    "hip_deviation": -0.02,
+    "hip_angle_deg": 175.2,
+    "knee_angle_deg": 179.9,
+    "shoulder_lift": 0.188,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.6
+   "pose_ms": 38.4
   },
   {
    "frame": 78,
@@ -1246,13 +1320,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.3,
-    "hip_deviation": -0.019,
-    "hip_angle_deg": 171.5,
-    "knee_angle_deg": 172.0,
-    "shoulder_lift": 0.196
+    "body_tilt_deg": 7.5,
+    "hip_deviation": -0.013,
+    "hip_angle_deg": 174.0,
+    "knee_angle_deg": 174.0,
+    "shoulder_lift": 0.202,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.2
+   "pose_ms": 39.5
   },
   {
    "frame": 79,
@@ -1260,13 +1335,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.5,
-    "hip_deviation": -0.015,
-    "hip_angle_deg": 174.1,
-    "knee_angle_deg": 175.3,
-    "shoulder_lift": 0.204
+    "body_tilt_deg": 7.7,
+    "hip_deviation": -0.009,
+    "hip_angle_deg": 176.8,
+    "knee_angle_deg": 177.9,
+    "shoulder_lift": 0.21,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.8
+   "pose_ms": 35.3
   },
   {
    "frame": 80,
@@ -1274,13 +1350,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.9,
-    "hip_deviation": -0.01,
-    "hip_angle_deg": 174.2,
-    "knee_angle_deg": 172.9,
-    "shoulder_lift": 0.198
+    "body_tilt_deg": 8.5,
+    "hip_deviation": -0.007,
+    "hip_angle_deg": 176.8,
+    "knee_angle_deg": 176.4,
+    "shoulder_lift": 0.203,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.2
+   "pose_ms": 37.3
   },
   {
    "frame": 81,
@@ -1288,13 +1365,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.2,
-    "hip_deviation": -0.007,
-    "hip_angle_deg": 173.6,
-    "knee_angle_deg": 170.2,
-    "shoulder_lift": 0.211
+    "body_tilt_deg": 8.3,
+    "hip_deviation": -0.001,
+    "hip_angle_deg": 176.1,
+    "knee_angle_deg": 172.0,
+    "shoulder_lift": 0.216,
+    "line_to": "ankle"
    },
-   "pose_ms": 35.0
+   "pose_ms": 41.8
   },
   {
    "frame": 82,
@@ -1302,13 +1380,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.5,
-    "hip_deviation": 0.003,
-    "hip_angle_deg": 175.9,
-    "knee_angle_deg": 170.1,
-    "shoulder_lift": 0.202
+    "body_tilt_deg": 7.7,
+    "hip_deviation": 0.011,
+    "hip_angle_deg": 177.7,
+    "knee_angle_deg": 169.8,
+    "shoulder_lift": 0.211,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.3
+   "pose_ms": 35.0
   },
   {
    "frame": 83,
@@ -1317,12 +1396,13 @@
    "metrics": {
     "side": "right",
     "body_tilt_deg": 8.1,
-    "hip_deviation": 0.005,
-    "hip_angle_deg": 175.6,
-    "knee_angle_deg": 168.2,
-    "shoulder_lift": 0.191
+    "hip_deviation": 0.012,
+    "hip_angle_deg": 177.8,
+    "knee_angle_deg": 169.2,
+    "shoulder_lift": 0.194,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.1
+   "pose_ms": 31.6
   },
   {
    "frame": 84,
@@ -1330,13 +1410,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.9,
-    "hip_deviation": 0.005,
-    "hip_angle_deg": 176.6,
-    "knee_angle_deg": 170.5,
-    "shoulder_lift": 0.198
+    "body_tilt_deg": 8.1,
+    "hip_deviation": 0.013,
+    "hip_angle_deg": 178.7,
+    "knee_angle_deg": 170.8,
+    "shoulder_lift": 0.206,
+    "line_to": "ankle"
    },
-   "pose_ms": 38.2
+   "pose_ms": 31.8
   },
   {
    "frame": 85,
@@ -1344,13 +1425,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.8,
-    "hip_deviation": -0.017,
-    "hip_angle_deg": 172.2,
-    "knee_angle_deg": 172.3,
-    "shoulder_lift": 0.199
+    "body_tilt_deg": 9.0,
+    "hip_deviation": -0.012,
+    "hip_angle_deg": 174.8,
+    "knee_angle_deg": 175.0,
+    "shoulder_lift": 0.203,
+    "line_to": "ankle"
    },
-   "pose_ms": 39.1
+   "pose_ms": 30.0
   },
   {
    "frame": 86,
@@ -1358,13 +1440,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.9,
-    "hip_deviation": -0.018,
-    "hip_angle_deg": 173.8,
-    "knee_angle_deg": 176.5,
-    "shoulder_lift": 0.2
+    "body_tilt_deg": 8.3,
+    "hip_deviation": -0.013,
+    "hip_angle_deg": 176.5,
+    "knee_angle_deg": 178.9,
+    "shoulder_lift": 0.208,
+    "line_to": "ankle"
    },
-   "pose_ms": 41.7
+   "pose_ms": 30.3
   },
   {
    "frame": 87,
@@ -1372,11 +1455,12 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.3,
-    "hip_deviation": -0.004,
-    "hip_angle_deg": 174.7,
-    "knee_angle_deg": 171.5,
-    "shoulder_lift": 0.196
+    "body_tilt_deg": 8.5,
+    "hip_deviation": 0.003,
+    "hip_angle_deg": 177.0,
+    "knee_angle_deg": 172.5,
+    "shoulder_lift": 0.201,
+    "line_to": "ankle"
    },
    "pose_ms": 36.5
   },
@@ -1386,13 +1470,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.8,
-    "hip_deviation": -0.005,
-    "hip_angle_deg": 173.1,
-    "knee_angle_deg": 168.1,
-    "shoulder_lift": 0.206
+    "body_tilt_deg": 8.2,
+    "hip_deviation": 0.004,
+    "hip_angle_deg": 175.3,
+    "knee_angle_deg": 168.0,
+    "shoulder_lift": 0.218,
+    "line_to": "ankle"
    },
-   "pose_ms": 35.0
+   "pose_ms": 40.3
   },
   {
    "frame": 89,
@@ -1400,13 +1485,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.2,
-    "hip_deviation": -0.001,
-    "hip_angle_deg": 174.8,
-    "knee_angle_deg": 169.8,
-    "shoulder_lift": 0.201
+    "body_tilt_deg": 8.5,
+    "hip_deviation": 0.006,
+    "hip_angle_deg": 176.8,
+    "knee_angle_deg": 170.1,
+    "shoulder_lift": 0.21,
+    "line_to": "ankle"
    },
-   "pose_ms": 37.5
+   "pose_ms": 31.2
   },
   {
    "frame": 90,
@@ -1414,13 +1500,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.1,
-    "hip_deviation": 0.002,
-    "hip_angle_deg": 176.0,
-    "knee_angle_deg": 170.8,
-    "shoulder_lift": 0.204
+    "body_tilt_deg": 8.2,
+    "hip_deviation": 0.011,
+    "hip_angle_deg": 178.0,
+    "knee_angle_deg": 170.7,
+    "shoulder_lift": 0.212,
+    "line_to": "ankle"
    },
-   "pose_ms": 35.2
+   "pose_ms": 31.3
   },
   {
    "frame": 91,
@@ -1428,13 +1515,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.5,
-    "hip_deviation": 0.004,
-    "hip_angle_deg": 175.2,
-    "knee_angle_deg": 168.0,
-    "shoulder_lift": 0.204
+    "body_tilt_deg": 7.8,
+    "hip_deviation": 0.013,
+    "hip_angle_deg": 177.0,
+    "knee_angle_deg": 167.6,
+    "shoulder_lift": 0.214,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.2
+   "pose_ms": 31.9
   },
   {
    "frame": 92,
@@ -1442,13 +1530,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.2,
-    "hip_deviation": 0.008,
-    "hip_angle_deg": 177.5,
-    "knee_angle_deg": 170.8,
-    "shoulder_lift": 0.192
+    "body_tilt_deg": 8.3,
+    "hip_deviation": 0.017,
+    "hip_angle_deg": 179.1,
+    "knee_angle_deg": 170.1,
+    "shoulder_lift": 0.2,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.4
+   "pose_ms": 34.7
   },
   {
    "frame": 93,
@@ -1456,13 +1545,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.2,
-    "hip_deviation": -0.008,
-    "hip_angle_deg": 173.0,
-    "knee_angle_deg": 169.3,
-    "shoulder_lift": 0.195
+    "body_tilt_deg": 8.4,
+    "hip_deviation": -0.001,
+    "hip_angle_deg": 174.9,
+    "knee_angle_deg": 169.9,
+    "shoulder_lift": 0.202,
+    "line_to": "ankle"
    },
-   "pose_ms": 33.1
+   "pose_ms": 39.8
   },
   {
    "frame": 94,
@@ -1470,13 +1560,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.9,
-    "hip_deviation": -0.032,
-    "hip_angle_deg": 169.8,
-    "knee_angle_deg": 175.0,
-    "shoulder_lift": 0.195
+    "body_tilt_deg": 8.3,
+    "hip_deviation": -0.026,
+    "hip_angle_deg": 171.9,
+    "knee_angle_deg": 176.2,
+    "shoulder_lift": 0.205,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.5
+   "pose_ms": 37.1
   },
   {
    "frame": 95,
@@ -1484,13 +1575,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.4,
-    "hip_deviation": -0.033,
-    "hip_angle_deg": 169.6,
-    "knee_angle_deg": 174.6,
-    "shoulder_lift": 0.208
+    "body_tilt_deg": 8.9,
+    "hip_deviation": -0.027,
+    "hip_angle_deg": 172.0,
+    "knee_angle_deg": 176.8,
+    "shoulder_lift": 0.217,
+    "line_to": "ankle"
    },
-   "pose_ms": 31.1
+   "pose_ms": 36.4
   },
   {
    "frame": 96,
@@ -1498,13 +1590,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.5,
-    "hip_deviation": -0.035,
-    "hip_angle_deg": 169.3,
-    "knee_angle_deg": 175.1,
-    "shoulder_lift": 0.207
+    "body_tilt_deg": 8.2,
+    "hip_deviation": -0.029,
+    "hip_angle_deg": 171.7,
+    "knee_angle_deg": 177.0,
+    "shoulder_lift": 0.22,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.5
+   "pose_ms": 34.4
   },
   {
    "frame": 97,
@@ -1512,13 +1605,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 8.4,
-    "hip_deviation": -0.031,
-    "hip_angle_deg": 171.1,
-    "knee_angle_deg": 177.1,
-    "shoulder_lift": 0.206
+    "body_tilt_deg": 8.8,
+    "hip_deviation": -0.028,
+    "hip_angle_deg": 174.0,
+    "knee_angle_deg": 178.7,
+    "shoulder_lift": 0.211,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.9
+   "pose_ms": 32.5
   },
   {
    "frame": 98,
@@ -1526,13 +1620,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.2,
-    "hip_deviation": -0.024,
-    "hip_angle_deg": 171.8,
-    "knee_angle_deg": 175.0,
-    "shoulder_lift": 0.212
+    "body_tilt_deg": 8.2,
+    "hip_deviation": -0.021,
+    "hip_angle_deg": 174.3,
+    "knee_angle_deg": 178.7,
+    "shoulder_lift": 0.225,
+    "line_to": "ankle"
    },
-   "pose_ms": 38.3
+   "pose_ms": 31.3
   },
   {
    "frame": 99,
@@ -1540,13 +1635,14 @@
    "faults": [],
    "metrics": {
     "side": "right",
-    "body_tilt_deg": 7.9,
-    "hip_deviation": -0.028,
-    "hip_angle_deg": 170.7,
-    "knee_angle_deg": 174.6,
-    "shoulder_lift": 0.209
+    "body_tilt_deg": 8.3,
+    "hip_deviation": -0.023,
+    "hip_angle_deg": 173.2,
+    "knee_angle_deg": 177.4,
+    "shoulder_lift": 0.218,
+    "line_to": "ankle"
    },
-   "pose_ms": 32.9
+   "pose_ms": 30.0
   }
  ]
 }
