@@ -61,6 +61,16 @@ export SPOTTER_MODEL_ID=<Bedrock Claude model or inference profile id>
 export SPOTTER_BEDROCK_REGION=eu-north-1
 ```
 
+## Deploy to AWS
+
+In AWS CloudShell (region eu-north-1):
+
+```bash
+git clone https://github.com/DarkModeGirl22/spotter && cd spotter && bash deploy/deploy.sh
+```
+
+It builds a Lambda zip (OpenCV 5 for Python 3.13), creates a least-privilege role (logs, Polly, Bedrock), the function (2 GB, 30 s) and a public HTTPS Function URL, then prints the link. Re-run it to update.
+
 ## Test
 
 ```bash
