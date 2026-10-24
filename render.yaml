@@ -1,0 +1,9 @@
+# Temporary preview hosting on Render (free plan). Production runs on AWS Lambda (deploy/deploy.sh).
+services:
+  - type: web
+    name: spotter
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.web
+    healthCheckPath: /api/health
+    autoDeploy: true

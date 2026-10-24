@@ -15,11 +15,30 @@
     <div class="bar-note">AI workout coach</div>
   </header>
   <main class="home-main">
-    <h1>Pick a workout.</h1>
+    <h1>Train with a coach<br>that sees you.</h1>
     <p class="lead">Spotter watches your form through the camera, talks you through every rep, and changes the plan when your body says so.</p>
-    <div class="cards" id="cards"></div>
-    <label class="check"><input type="checkbox" id="useFile"> Use a video file instead of the camera (for testing)</label>
-    <input type="file" id="fileInput" accept="video/*" hidden>
+
+    <div class="modes">
+      <button class="mode" id="modeLive"><b>Practice live</b><span>Use your camera. Pick a workout.</span></button>
+      <button class="mode" id="modeVideo"><b>Upload a video</b><span>Coach a recorded clip (demo).</span></button>
+    </div>
+
+    <div id="livePanel" class="panel-box" hidden>
+      <div class="cards" id="cards"></div>
+    </div>
+
+    <div id="videoPanel" class="panel-box" hidden>
+      <div class="form-row">
+        <label for="exSelect">Exercise in the video</label>
+        <select id="exSelect"></select>
+      </div>
+      <div class="form-row">
+        <label for="fileInput">Video file</label>
+        <input type="file" id="fileInput" accept="video/*">
+      </div>
+      <button class="primary" id="btnAnalyze" disabled>Start coaching this video</button>
+    </div>
+
     <p class="fine">Frames are analyzed and thrown away. Nothing is recorded or stored. Stop anytime. If something hurts, stop.</p>
   </main>
 </section>

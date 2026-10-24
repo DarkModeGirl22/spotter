@@ -42,15 +42,36 @@ function renderHome() {
     cards.appendChild(el);
   }
 }
-$("useFile").onchange = (e) => { if (e.target.checked) $("fileInput").click(); else sourceFile = null; };
-$("fileInput").onchange = (e) => { sourceFile = e.target.files[0] || null; $("useFile").checked = !!sourceFile; };
+function chooseMode(m) {
+  $("modeLive").classList.toggle("on", m === "live");
+  $("modeVideo").classList.toggle("on", m === "video");
+  $("livePanel").hidden = m !== "live";
+  $("videoPanel").hidden = m !== "video";
+}
+$("modeLive").onclick = () => { sourceFile = null; chooseMode("live"); };
+$("modeVideo").onclick = () => chooseMode("video");
+for (const w of Object.values(WORKOUTS)) for (const it of w.items) {
+  const o = document.createElement("option");
+  o.value = it.id; o.textContent = `${it.name} (${w.name.toLowerCase()})`;
+  $("exSelect").appendChild(o);
+}
+$("exSelect").value = "plank";
+$("fileInput").onchange = (e) => { sourceFile = e.target.files[0] || null; $("btnAnalyze").disabled = !sourceFile; };
+$("btnAnalyze").onclick = () => {
+  const ex = Object.values(WORKOUTS).flatMap((w) => w.items).find((i) => i.id === $("exSelect").value);
+  start({ name: "Video: " + ex.name, items: [ex], video: true });
+};
 
 // ---------- camera / video source
 async function openSource() {
   const v = $("video");
   if (sourceFile) {
-    v.srcObject = null; v.src = URL.createObjectURL(sourceFile); v.loop = true;
+    v.srcObject = null; v.src = URL.createObjectURL(sourceFile); v.loop = false;
     document.querySelector(".cam-panel").classList.remove("mirror");
+    await new Promise((ok) => { if (v.readyState >= 1) ok(); else v.onloadedmetadata = ok; });
+    v.onended = () => { if (phase === "work") endExercise(); };
+    v.currentTime = 0;
+    return;   // the video starts playing when the set starts
   } else {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 720 } }, audio: false });
@@ -90,7 +111,7 @@ async function speak(text, kind = "") {
 
 // ---------- workout flow
 async function start(key) {
-  plan = WORKOUTS[key];
+  plan = typeof key === "string" ? WORKOUTS[key] : key;
   stats = { corrections: 0, fixed: 0, fixTimes: [], planChanges: 0, questions: 0, frames: 0, latency: [] };
   traceLog = [];
   $("home").hidden = true; $("workout").hidden = false; $("done").hidden = true;
@@ -111,16 +132,20 @@ function enterPrep() {
   $("exName").textContent = ex.name; $("exPhase").textContent = "GET READY";
   $("nextUp").textContent = ""; clearOverlay(); setChip("WAITING", false);
   coach.setMove(ex.move);
+  if (plan.video) { setPhase("prep", 3); speak(`${ex.name}. Watching your video.`); return; }
   setPhase("prep", PREP);
   speak(`${ex.name}. ${ex.tip}`);
 }
 
 async function enterWork() {
   const ex = current();
-  const r = await post("api/start", { exercise: ex.id, duration: WORK });
+  const v = $("video");
+  const dur = plan.video ? Math.max(5, Math.ceil(v.duration || WORK)) : WORK;
+  const r = await post("api/start", { exercise: ex.id, duration: dur });
   state = r.state;
   $("exPhase").textContent = "GO";
-  setPhase("work", WORK);
+  setPhase("work", dur);
+  if (plan.video) { v.currentTime = 0; v.play(); }
   workStart = performance.now();
   speak("Go!");
 }
