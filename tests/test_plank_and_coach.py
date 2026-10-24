@@ -94,4 +94,4 @@ def test_setup_check_rejects_dark_frame_and_wrong_view():
     side = plank_pose()                       # lying sideways: fine for plank, wrong for squats
     side.points[[12, 24, 26, 28]] = side.points[[11, 23, 25, 27]]   # far side hidden behind the near side
     assert check("plank", img, side)["issue"] == "ok"
-    assert check("squat", img, side)["issue"] == "need_front"
+    assert check("squat", img, side)["issue"] == "stand_up"    # lying down, but squats are standing

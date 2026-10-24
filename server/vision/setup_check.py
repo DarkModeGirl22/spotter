@@ -25,6 +25,7 @@ MESSAGES = {
     "need_side": "Turn sideways to the phone, so I can see your body line.",
     "need_front": "Face the phone, please.",
     "get_in_position": "Good spot! Now get into position.",
+    "stand_up": "This one is done standing. Stand up, please.",
     "ok": "Perfect, I can see you well. Let's go!",
 }
 
@@ -67,6 +68,8 @@ def check(exercise: str, image: np.ndarray, pose: Pose | None) -> dict:
             issue = "too_far"
         elif size > 0.97:
             issue = "too_close"
+        elif exercise not in FLOOR and not _upright(pose):
+            issue = "stand_up"            # lying on the floor but the exercise is a standing one
         elif exercise in SIDE_VIEW and exercise not in FLOOR and width_ratio > 0.45:
             issue = "need_side"
         elif exercise not in SIDE_VIEW and width_ratio < 0.3:

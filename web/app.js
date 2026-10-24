@@ -143,7 +143,7 @@ let setup = null;
 const SETUP_LABELS = {
   too_dark: "TOO DARK", blurry: "BLURRY", no_person: "NO ONE IN VIEW", cut_off: "MOVE BACK",
   too_far: "COME CLOSER", too_close: "STEP BACK", need_side: "TURN SIDEWAYS", need_front: "FACE THE PHONE",
-  get_in_position: "GET IN POSITION",
+  get_in_position: "GET IN POSITION", stand_up: "STAND UP",
 };
 function grabFrame() {
   const v = $("video");
