@@ -70,6 +70,17 @@ Thresholds are normalized by body length, so they don't depend on distance to th
 | Decide | Second failed cue → Amazon Bedrock picks one tool: `switch_variant`, `shorten_set`, `ask_user` or `say`. If Bedrock is unreachable, a deterministic policy picks the same kinds of action | `brain.decide` |
 | Human control | `ask_user` shows buttons (keep going / easier / stop). No answer in 10 s → safe default: pause the set | `coach.answer` |
 
+**Active perception: camera check before every exercise.** In live mode the set does not start on a timer. Every 0.6 s the agent checks, with OpenCV, whether it *can* judge this exercise from where the phone is:
+- light (mean grey level);
+- sharpness (variance of `cv.Laplacian`);
+- a person found;
+- full body inside the frame;
+- distance (body size in the frame);
+- camera angle (shoulder width ÷ torso length: side view for plank, lunges, bridge and wall push-ups; front view for the others);
+- for floor exercises, the start position.
+
+It says what to change ("Turn sideways to the phone", "It's too dark, turn on a light", "Good spot! Now get into position"). It starts only after 3 good frames in a row: "Perfect, I can see you well. Let's go!" Each check is logged (`setup_check` events). This guards against the weaknesses measured in §6.3 instead of only documenting them.
+
 **How vision changes the next action:** the same exercise leads to different actions depending only on what OpenCV sees. Hips back in line → praise and continue. Hips still low → repeat the cue, then a Bedrock decision. Knees on the floor repeatedly → switch to knee plank; after that, `knees_down` stops being a fault. Person gone from view → ask "Are you okay?"
 
 ### Trace from a real video
@@ -141,7 +152,7 @@ A clean test video says little about a phone propped on a living-room floor. `py
 
 Full tables and an annotated picture of each failure: `docs/eval/robustness/`.
 
-**What this means for users:** hip sag is the subtlest fault, and it is the one that degrades first with distance, darkness and blur. So the app asks users to place the phone 2–3 m away in a lit room. The agent's 2-of-3-frames rule absorbs isolated misses, but not a sustained one (a far, dark camera can miss a real sag).
+**What this means for users:** hip sag is the subtlest fault, and it is the one that degrades first with distance, darkness and blur. So the camera check (§5) refuses to start in a dark room or with the user too far, and tells them how to fix it. The agent's 2-of-3-frames rule absorbs isolated misses, but not a sustained one (a far, dark camera can miss a real sag).
 
 ### 6.4 Bugs found by testing, and fixes
 

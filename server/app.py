@@ -15,6 +15,7 @@ from pydantic import BaseModel
 
 from .agent import brain, coach, voice
 from .vision.exercises import analyze
+from .vision.setup_check import check as setup_check
 from .vision.pose import PoseEstimator, decode_jpeg
 
 log = logging.getLogger("spotter")
@@ -47,6 +48,12 @@ class FrameIn(BaseModel):
     session: str
     state: dict
     t: float
+    image: str  # base64 JPEG
+
+
+class SetupIn(BaseModel):
+    session: str
+    exercise: str
     image: str  # base64 JPEG
 
 
@@ -85,6 +92,24 @@ def frame(body: FrameIn):
         "pose": pose.to_json() if pose else None,
         "server_ms": round((time.perf_counter() - t0) * 1000, 1),
     }
+
+
+@app.post("/api/setup")
+def setup(body: SetupIn):
+    """Active perception before a set: can the camera judge this exercise from where it is?"""
+    t0 = time.perf_counter()
+    try:
+        img = decode_jpeg(base64.b64decode(body.image.split(",")[-1]))
+    except Exception:
+        img = None
+    if img is None:
+        raise HTTPException(400, "bad image")
+    pose = estimator().estimate(img)
+    result = setup_check(body.exercise, img, pose)
+    _log_trace(body.session, [{"event": "setup_check", "exercise": body.exercise, "issue": result["issue"],
+                               "metrics": result["metrics"]}])
+    return {**result, "pose": pose.to_json() if pose else None,
+            "server_ms": round((time.perf_counter() - t0) * 1000, 1)}
 
 
 @app.post("/api/answer")

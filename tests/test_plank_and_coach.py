@@ -83,3 +83,14 @@ def test_piked_plank_with_bent_knees_is_hips_high_not_knees_down():
     pose.points[L_KNEE] = [330, 250]    # knees slightly bent but far above the floor
     faults = analyze_plank(pose).faults
     assert "hips_high" in faults and "knees_down" not in faults
+
+
+def test_setup_check_rejects_dark_frame_and_wrong_view():
+    from server.vision.setup_check import check
+    dark = np.full((240, 320, 3), 10, np.uint8)
+    assert check("plank", dark, None)["issue"] == "too_dark"
+    img = (np.random.default_rng(0).random((240, 320, 3)) * 255).astype(np.uint8)   # bright and sharp
+    assert check("plank", img, None)["issue"] == "no_person"
+    side = plank_pose()                       # lying sideways: fine for plank, wrong for squats
+    assert check("plank", img, side)["issue"] == "ok"
+    assert check("squat", img, side)["issue"] == "need_front"

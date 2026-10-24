@@ -133,8 +133,60 @@ function enterPrep() {
   $("nextUp").textContent = ""; clearOverlay(); setChip("WAITING", false);
   coach.setMove(ex.move);
   if (plan.video) { setPhase("prep", 3); speak(`${ex.name}. Watching your video.`); return; }
-  setPhase("prep", PREP);
+  // live: the coach checks the camera view first and starts only when it can judge the exercise
+  phase = "setup"; setup = { okStreak: 0, lastIssue: null, lastSpoke: performance.now(), t0: performance.now() };
+  $("exPhase").textContent = "CAMERA CHECK"; $("timer").textContent = "SETUP";
   speak(`${ex.name}. ${ex.tip}`);
+}
+
+let setup = null;
+const SETUP_LABELS = {
+  too_dark: "TOO DARK", blurry: "BLURRY", no_person: "NO ONE IN VIEW", cut_off: "MOVE BACK",
+  too_far: "COME CLOSER", too_close: "STEP BACK", need_side: "TURN SIDEWAYS", need_front: "FACE THE PHONE",
+  get_in_position: "GET IN POSITION",
+};
+function grabFrame() {
+  const v = $("video");
+  if (!v.videoWidth) return null;
+  const w = 480, h = Math.round((v.videoHeight / v.videoWidth) * w);
+  grab.width = w; grab.height = h;
+  grab.getContext("2d").drawImage(v, 0, 0, w, h);
+  return grab.toDataURL("image/jpeg", 0.7);
+}
+async function sendSetupFrame() {
+  const image = grabFrame();
+  if (!image) return;
+  inflight = true;
+  try {
+    const r = await post("api/setup", { session, exercise: current().id, image });
+    if (phase !== "setup") return;
+    drawPose(r.pose, { faults: r.ok ? [] : [r.issue], bad_joints: [] });
+    setChip(r.ok ? "CAMERA OK" : (SETUP_LABELS[r.issue] || r.issue.toUpperCase()), !r.ok);
+    $("meta").textContent = `light ${r.metrics.brightness} · sharp ${r.metrics.sharpness}` +
+      (r.metrics.body_size != null ? ` · size ${r.metrics.body_size}` : "");
+    const now = performance.now();
+    if (r.ok) {
+      setup.okStreak += 1;
+      if (setup.okStreak >= 3) {
+        traceLog.push({ exercise: current().id, event: "setup", t: 0, result: "ok", metrics: r.metrics });
+        addTraceItem({ event: "setup", t: 0, result: "camera ok", ...r.metrics });
+        phase = "starting";
+        speak(r.message);
+        setTimeout(enterWork, 2200);
+      }
+      return;
+    }
+    setup.okStreak = 0;
+    // speak when the problem changes, or remind every 8 s (never talk over the intro line)
+    if (now - setup.t0 > 3500 && ((r.issue !== setup.lastIssue && now - setup.lastSpoke > 2500) || now - setup.lastSpoke > 8000)) {
+      speak(r.message, "correction");
+      traceLog.push({ exercise: current().id, event: "setup", t: 0, result: r.issue, metrics: r.metrics });
+      addTraceItem({ event: "setup", t: 0, result: r.issue });
+      setup.lastIssue = r.issue; setup.lastSpoke = now;
+    }
+  } catch (e) {
+    $("meta").textContent = "connection problem, retrying…";
+  } finally { inflight = false; }
 }
 
 async function enterWork() {
@@ -188,12 +240,8 @@ function finish() {
 // ---------- frames -> agent
 const grab = document.createElement("canvas");
 async function sendFrame() {
-  const v = $("video");
-  if (!v.videoWidth) return;
-  const w = 480, h = Math.round((v.videoHeight / v.videoWidth) * w);
-  grab.width = w; grab.height = h;
-  grab.getContext("2d").drawImage(v, 0, 0, w, h);
-  const image = grab.toDataURL("image/jpeg", 0.7);
+  const image = grabFrame();
+  if (!image) return;
   const t = (performance.now() - workStart) / 1000;
   const sentAt = performance.now();
   inflight = true;
@@ -285,7 +333,8 @@ function addTraceItem(ev) {
   const detail = ev.event === "decide" ? `${ev.fault} → ${ev.decision} (${ev.decided_by})`
     : ev.event === "recheck" ? `${ev.fault}: ${ev.result}${ev.seconds_to_fix ? " in " + ev.seconds_to_fix + "s" : ""}`
     : ev.event === "act" ? `${ev.action} ${ev.args ? JSON.stringify(ev.args) : ev.why || ""}`
-    : ev.event === "human" ? `user chose ${ev.choice}` : JSON.stringify(ev);
+    : ev.event === "human" ? `user chose ${ev.choice}`
+    : ev.event === "setup" ? `camera check: ${ev.result}` : JSON.stringify(ev);
   li.innerHTML = `<span class="ev">${current().id} t=${ev.t}s ${ev.event.toUpperCase()}</span><br>${detail}`;
   $("traceList").prepend(li);
 }
@@ -303,7 +352,7 @@ $("btnPause").onclick = () => {
   if (paused) { pausedAt = performance.now(); $("video").pause(); speechSynthesis && speechSynthesis.cancel(); }
   else { const d = performance.now() - pausedAt; phaseEnd += d; workStart += d; $("video").play(); }
 };
-$("btnSkip").onclick = () => { if (phase === "work") endExercise(); else if (phase === "rest") nextAfterRest(); else if (phase === "prep") enterWork(); };
+$("btnSkip").onclick = () => { if (phase === "work") endExercise(); else if (phase === "rest") nextAfterRest(); else if (phase === "prep" || phase === "setup") { phase = "starting"; enterWork(); } };
 $("btnEnd").onclick = () => finish();
 $("btnTrace").onclick = () => { $("trace").hidden = !$("trace").hidden; };
 $("btnTraceX").onclick = () => { $("trace").hidden = true; };
@@ -322,6 +371,10 @@ let lastFrame = 0;
 function tick() {
   requestAnimationFrame(tick);
   if (!phase || phase === "done" || paused) return;
+  if (phase === "setup" || phase === "starting") {
+    if (phase === "setup" && performance.now() - lastFrame > 600 && !inflight) { lastFrame = performance.now(); sendSetupFrame(); }
+    return;
+  }
   const left = Math.max(0, (phaseEnd - performance.now()) / 1000);
   const shown = Math.ceil(left);
   $("timer").textContent = `${Math.floor(shown / 60)}:${String(shown % 60).padStart(2, "0")}`;
