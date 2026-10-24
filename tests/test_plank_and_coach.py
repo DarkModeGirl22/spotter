@@ -92,5 +92,6 @@ def test_setup_check_rejects_dark_frame_and_wrong_view():
     img = (np.random.default_rng(0).random((240, 320, 3)) * 255).astype(np.uint8)   # bright and sharp
     assert check("plank", img, None)["issue"] == "no_person"
     side = plank_pose()                       # lying sideways: fine for plank, wrong for squats
+    side.points[[12, 24, 26, 28]] = side.points[[11, 23, 25, 27]]   # far side hidden behind the near side
     assert check("plank", img, side)["issue"] == "ok"
     assert check("squat", img, side)["issue"] == "need_front"
