@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spotter</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HOME -->
+<section id="home" class="screen">
+  <header class="bar">
+    <div class="logo"><span class="sq"></span>SPOTTER</div>
+    <div class="bar-note">AI workout coach</div>
+  </header>
+  <main class="home-main">
+    <h1>Pick a workout.</h1>
+    <p class="lead">Spotter watches your form through the camera, talks you through every rep, and changes the plan when your body says so.</p>
+    <div class="cards" id="cards"></div>
+    <label class="check"><input type="checkbox" id="useFile"> Use a video file instead of the camera (for testing)</label>
+    <input type="file" id="fileInput" accept="video/*" hidden>
+    <p class="fine">Frames are analyzed and thrown away. Nothing is recorded or stored. Stop anytime. If something hurts, stop.</p>
+  </main>
+</section>
+
+<!-- WORKOUT -->
+<section id="workout" class="screen" hidden>
+  <header class="bar">
+    <div class="logo"><span class="sq"></span>SPOTTER</div>
+    <div class="bar-note" id="progress">1 / 4</div>
+  </header>
+
+  <div class="panel coach-panel">
+    <canvas id="coachCanvas"></canvas>
+    <div class="ex-name" id="exName">Plank</div>
+    <div class="ex-phase" id="exPhase">GET READY</div>
+    <div class="timer" id="timer">0:60</div>
+    <div class="next" id="nextUp"></div>
+    <div class="subtitle" id="subtitle"></div>
+  </div>
+
+  <div class="panel cam-panel">
+    <video id="video" playsinline muted></video>
+    <canvas id="overlay"></canvas>
+    <div class="chip" id="chip">WAITING</div>
+    <div class="meta" id="meta"></div>
+    <div class="ask" id="ask" hidden>
+      <div class="ask-q" id="askQ"></div>
+      <div class="ask-btns" id="askBtns"></div>
+    </div>
+  </div>
+
+  <footer class="controls">
+    <button id="btnPause">PAUSE</button>
+    <button id="btnSkip">SKIP</button>
+    <button id="btnTrace">TRACE</button>
+    <button id="btnEnd" class="danger">END</button>
+  </footer>
+
+  <aside class="trace" id="trace" hidden>
+    <div class="trace-head"><b>AGENT TRACE</b><button id="btnTraceDl">DOWNLOAD JSON</button><button id="btnTraceX">CLOSE</button></div>
+    <ol id="traceList"></ol>
+  </aside>
+</section>
+
+<!-- DONE -->
+<section id="done" class="screen" hidden>
+  <header class="bar"><div class="logo"><span class="sq"></span>SPOTTER</div></header>
+  <main class="home-main">
+    <h1>Workout done.</h1>
+    <table class="summary" id="summary"></table>
+    <div class="row">
+      <button id="btnDl">DOWNLOAD TRACE</button>
+      <button id="btnHome" class="primary">BACK HOME</button>
+    </div>
+  </main>
+</section>
+
+<script src="figure.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
