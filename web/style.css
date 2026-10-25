@@ -156,3 +156,7 @@ button { font-family: var(--head); cursor: pointer; }
 .ask.soft .ask-card { pointer-events: auto; padding: 14px; }
 .ask.soft .ask-q { font-size: 16px; margin-bottom: 10px; }
 .ask.soft .ask-btns { grid-template-columns: 1fr 1fr; }
+.mic { position: absolute; left: 12px; bottom: 8px; max-width: 70%; background: rgba(17,17,17,.85); color: #fff; font: 600 11px var(--head); letter-spacing: .04em; padding: 6px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mic .dot { display: inline-block; width: 8px; height: 8px; background: var(--red); margin-right: 8px; animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.ask-hint { font: 500 13px var(--body); color: var(--mute); margin: -8px 0 10px; }

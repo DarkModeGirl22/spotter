@@ -119,6 +119,21 @@ def answer(body: AnswerIn):
     return {"state": state, "actions": actions, "trace": trace}
 
 
+class HearIn(BaseModel):
+    session: str
+    state: dict
+    t: float
+    text: str
+
+
+@app.post("/api/hear")
+def hear(body: HearIn):
+    """The user spoke to the coach (browser speech-to-text): understand it and act."""
+    state, actions, trace = coach.hear(body.state, body.text[:200], body.t)
+    _log_trace(body.session, trace)
+    return {"state": state, "actions": actions, "trace": trace}
+
+
 @app.get("/api/voice")
 def speak(text: str):
     audio = voice.synthesize(text)

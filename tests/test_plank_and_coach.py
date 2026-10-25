@@ -95,3 +95,17 @@ def test_setup_check_rejects_dark_frame_and_wrong_view():
     side.points[[12, 24, 26, 28]] = side.points[[11, 23, 25, 27]]   # far side hidden behind the near side
     assert check("plank", img, side)["issue"] == "ok"
     assert check("squat", img, side)["issue"] == "stand_up"    # lying down, but squats are standing
+
+
+def test_voice_intents():
+    from server.agent.coach import hear, intent_of
+    assert intent_of("Ok I'll continue") == "keep_going"
+    assert intent_of("I need a rest") == "stop_set"
+    assert intent_of("I can't anymore") == "stop_set"
+    assert intent_of("make it easier please") == "easier_version"
+    assert intent_of("ouch my back hurts") == "pain"
+    assert intent_of("j'ai mal au dos") == "pain"
+    assert intent_of("what a nice day") is None
+    state = coach.new_state("plank")
+    state, acts, _ = hear(state, "my wrist hurts", 12.0)
+    assert any(a["type"] == "end_set" and a["reason"] == "pain" for a in acts)

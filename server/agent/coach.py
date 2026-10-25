@@ -74,6 +74,8 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
     state["step"] += 1
     actions: list[dict] = []
     trace: list[dict] = [{"event": "perceive", "t": round(t, 2), "obs": obs.to_json()}]
+    if state.get("ended"):          # set already over (user rested, pain, timeout): nothing more to do
+        return state, actions, trace
 
     faults = [f for f in obs.faults if not (state["variant"] == "knee" and f in KNEE_PLANK_IGNORES)]
     faults += _extra_faults(state, obs, t)
@@ -108,6 +110,7 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
             state["pending_question"] = None
             state["paused"] = True
             _say(actions, state, t, "No answer, so let's pause and rest. Take a breath.", "safety")
+            state["ended"] = True
             actions.append({"type": "end_set", "reason": "no_answer_timeout"})
             trace.append({"event": "act", "t": round(t, 2), "action": "end_set", "why": "question timed out"})
         return state, actions, trace
@@ -119,6 +122,7 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
             state["milestones"].append(mark)
             _say(actions, state, t, text, "motivation")
     if left <= 0:
+        state["ended"] = True
         actions.append({"type": "end_set", "reason": "time"})
         return state, actions, trace
 
@@ -248,6 +252,7 @@ def answer(state: dict, choice: str, t: float) -> tuple[dict, list, list]:
         _say(actions, state, t, "Great! Get back in position, the clock starts when I see you.", "motivation")
         return state, actions, trace
     if choice == "stop_set":
+        state["ended"] = True
         actions.append({"type": "end_set", "reason": "user_stopped"})
         _say(actions, state, t, "Good call. Rest now, you did great.", "safety")
     elif choice == "easier_version" and state["exercise"] == "plank":
@@ -277,7 +282,49 @@ def _while_stopped(state, stopping, t, actions, trace):
                       "paused_s": round(pause, 1)})
     elif t - st["at"] > REST_AFTER:
         state["stopped"], state["pending_question"] = None, None
+        state["ended"] = True
         actions.append({"type": "end_set", "reason": "rested"})
         _say(actions, state, t, f"Good job, {st['held']} seconds. Take your rest.", "safety")
         trace.append({"event": "act", "t": round(t, 2), "action": "end_set", "why": "user did not come back"})
     return state, actions, trace
+
+
+# ---------------------------------------------------------------- voice: the user talks to the coach
+INTENTS = [  # checked in order; first match wins (pain always first)
+    ("pain", ("pain", "hurt", "injur", "ouch", "dizzy", "j'ai mal", "douleur", "mal au")),
+    ("easier_version", ("easier", "too hard", "simpler", "plus facile", "trop dur")),
+    ("stop_set", ("rest", "stop", "can't", "cannot", "can not", "enough", "break", "i'm done", "finish",
+                  "repos", "arrête", "j'en peux plus", "pause")),
+    ("keep_going", ("continue", "keep going", "go on", "i can", "let's go", "ready", "yes", "again",
+                    "one more", "on y va", "je continue", "oui")),
+]
+
+
+def intent_of(text: str) -> str | None:
+    t = " " + text.lower().strip() + " "
+    for intent, words in INTENTS:
+        if any(w in t for w in words):
+            return intent
+    return None
+
+
+def hear(state: dict, text: str, t: float) -> tuple[dict, list, list]:
+    """Something the user said (speech-to-text in the browser). Same effect as a button, plus 'it hurts'."""
+    intent = intent_of(text)
+    trace = [{"event": "human", "t": round(t, 2), "heard": text, "intent": intent}]
+    if intent is None:
+        if state.get("pending_question"):
+            actions = [{"type": "say", "text": "Sorry, I didn't get that. Say continue, or rest.", "kind": "question"}]
+            return state, actions, trace
+        return state, [], trace
+    if intent == "pain":
+        state = deepcopy(state)
+        state["pending_question"], state["stopped"], state["ended"] = None, None, True
+        actions = [{"type": "close_ask"}, {"type": "end_set", "reason": "pain"},
+                   {"type": "say", "kind": "safety",
+                    "text": "Stop right now. Rest and breathe. If the pain doesn't go away, see a professional."}]
+        trace.append({"event": "act", "t": round(t, 2), "action": "end_set", "why": "user reported pain"})
+        return state, actions, trace
+    state, actions, tr = answer(state, intent, t)
+    actions.insert(0, {"type": "close_ask"})
+    return state, actions, trace + tr[1:]

@@ -88,7 +88,9 @@ function closeSource() {
 
 // ---------- voice: Amazon Polly through /api/voice, browser speech as fallback
 let audio = null;
+let speakingUntil = 0, stateVersion = 0;   // ignore the microphone while the coach is talking (it would hear itself)
 async function speak(text, kind = "") {
+  speakingUntil = performance.now() + 900 + text.length * 70;
   const sub = $("subtitle");
   sub.textContent = text;
   sub.className = "subtitle" + (kind === "correction" || kind === "question" ? " correction" : "");
@@ -107,6 +109,41 @@ async function speak(text, kind = "") {
     u.lang = "en-US"; u.rate = 1.05;
     speechSynthesis.speak(u);
   }
+}
+
+// ---------- listening: the user answers the coach out loud (browser speech recognition)
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false;
+function startListening() {
+  if (!SR || listening || plan.video) return;
+  try {
+    rec = new SR();
+    rec.lang = "en-US"; rec.continuous = true; rec.interimResults = false;
+    rec.onresult = (e) => {
+      const r = e.results[e.results.length - 1];
+      if (!r.isFinal) return;
+      const text = r[0].transcript.trim();
+      if (!text || performance.now() < speakingUntil) return;
+      onHeard(text);
+    };
+    rec.onend = () => { if (listening && phase !== "done") { try { rec.start(); } catch (_) {} } };
+    rec.onerror = (e) => { if (e.error === "not-allowed") { listening = false; $("mic").hidden = true; } };
+    listening = true; rec.start(); $("mic").hidden = false;
+  } catch (_) { listening = false; }
+}
+function stopListening() {
+  listening = false; $("mic").hidden = true;
+  if (rec) { try { rec.stop(); } catch (_) {} rec = null; }
+}
+async function onHeard(text) {
+  $("heard").textContent = `“${text}”`;
+  if (phase !== "work") return;
+  const t = (performance.now() - workStart) / 1000;
+  try {
+    const r = await post("api/hear", { session, state, t, text });
+    state = r.state; stateVersion += 1;
+    handle(r.actions, r.trace);
+  } catch (_) { /* ignore */ }
 }
 
 // ---------- workout flow
@@ -199,8 +236,9 @@ async function enterWork() {
   $("exPhase").textContent = "GO";
   setPhase("work", dur);
   if (plan.video) { v.currentTime = 0; v.play(); }
-  workStart = performance.now();
+  workStart = performance.now(); ending = false;
   speak("Go!");
+  startListening();
 }
 
 function enterRest() {
@@ -221,7 +259,7 @@ function endExercise() {
 function nextAfterRest() { idx += 1; enterPrep(); }
 
 function finish() {
-  phase = "done"; closeSource(); hideAsk();
+  phase = "done"; closeSource(); hideAsk(); stopListening();
   $("workout").hidden = true; $("done").hidden = false; $("trace").hidden = true;
   const avg = (a) => (a.length ? (a.reduce((x, y) => x + y, 0) / a.length) : 0);
   const rows = [
@@ -246,9 +284,11 @@ async function sendFrame() {
   const t = (performance.now() - workStart) / 1000;
   const sentAt = performance.now();
   inflight = true;
+  const version = stateVersion;
   try {
     const r = await post("api/frame", { session, state, t, image });
-    if (phase !== "work") return;
+    // the user answered (voice or button) while this frame was in flight: its state is outdated
+    if (phase !== "work" || version !== stateVersion) return;
     state = r.state;
     stats.frames += 1; stats.latency.push(performance.now() - sentAt);
     drawPose(r.pose, r.obs);
@@ -275,12 +315,12 @@ function handle(actions, trace) {
     else if (a.type === "pause_timer") { frozen = phaseEnd - performance.now(); $("exPhase").textContent = `PAUSED · YOU HELD ${a.held}s`; stats.stops += 1; }
     else if (a.type === "resume_timer") { phaseEnd = performance.now() + (frozen || 0); frozen = null; $("exPhase").textContent = "GO"; }
     else if (a.type === "close_ask") { hideAsk(); }
-    else if (a.type === "end_set") { setTimeout(endExercise, 1500); }
+    else if (a.type === "end_set") { ending = true; frozen = null; setTimeout(endExercise, 1500); }
   }
 }
 
 // ---------- human in the loop
-let frozen = null, askSoft = false;
+let frozen = null, askSoft = false, ending = false;
 function showAsk(a) {
   askSoft = !!a.soft;
   $("ask").classList.toggle("soft", askSoft);
@@ -300,7 +340,7 @@ async function answer(choice) {
   hideAsk();
   const t = (performance.now() - workStart) / 1000;
   const r = await post("api/answer", { session, state, t, choice });
-  state = r.state;
+  state = r.state; stateVersion += 1;
   handle(r.actions, r.trace);
 }
 
@@ -340,7 +380,7 @@ function addTraceItem(ev) {
   const detail = ev.event === "decide" ? `${ev.fault} → ${ev.decision} (${ev.decided_by})`
     : ev.event === "recheck" ? `${ev.fault}: ${ev.result}${ev.seconds_to_fix ? " in " + ev.seconds_to_fix + "s" : ""}`
     : ev.event === "act" ? `${ev.action} ${ev.args ? JSON.stringify(ev.args) : ev.why || ""}`
-    : ev.event === "human" ? `user chose ${ev.choice}`
+    : ev.event === "human" ? (ev.heard ? `user said “${ev.heard}” → ${ev.intent || "not understood"}` : `user chose ${ev.choice}`)
     : ev.event === "setup" ? `camera check: ${ev.result}` : JSON.stringify(ev);
   li.innerHTML = `<span class="ev">${current().id} t=${ev.t}s ${ev.event.toUpperCase()}</span><br>${detail}`;
   $("traceList").prepend(li);
@@ -395,7 +435,7 @@ function tick() {
     if (phase === "rest") return nextAfterRest();
   }
   // keep watching during a "soft" question (user stopped): the camera can see them come back
-  if (phase === "work" && !inflight && ($("ask").hidden || askSoft) && performance.now() - lastFrame > FRAME_MS) {
+  if (phase === "work" && !ending && !inflight && ($("ask").hidden || askSoft) && performance.now() - lastFrame > FRAME_MS) {
     lastFrame = performance.now();
     sendFrame();
   }

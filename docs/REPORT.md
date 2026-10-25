@@ -70,6 +70,7 @@ Thresholds are normalized by body length, so they don't depend on distance to th
 | Decide | Second failed cue → Amazon Bedrock picks one tool: `switch_variant`, `shorten_set`, `ask_user` or `say`. If Bedrock is unreachable, a deterministic policy picks the same kinds of action | `brain.decide` |
 | Human control | `ask_user` shows buttons (keep going / easier / stop). No answer in 10 s → safe default: pause the set | `coach.answer` |
 | Stop detection | The user stops (drops out of position, stands up, leaves the frame, stops moving) for about 1.2 s → **the timer pauses at once**, the coach says "You held 14 seconds. That's already good!" and offers *I'll continue / Rest now*. The camera keeps watching: back in position → timer resumes by itself ("You're back!"), with paused time not counted. Gone for 20 s → the set ends as rest | `coach._while_stopped` |
+| Talking back | The user answers out loud, like with a human coach: browser speech recognition → text → intent (`continue`, `rest`, `easier`, **`it hurts`**). "It hurts" always ends the set with a safety message. The mic is ignored while the coach is speaking, so it never hears itself. Buttons remain as a fallback for noisy rooms | `coach.hear`, `/api/hear` |
 
 **Active perception: camera check before every exercise.** In live mode the set does not start on a timer. Every 0.6 s the agent checks, with OpenCV, whether it *can* judge this exercise from where the phone is:
 - light (mean grey level);
@@ -181,6 +182,7 @@ Every fix is covered by a test (`tests/`) or measured by an evaluation script.
 - **Depth.** A 2D camera cannot see twisting toward or away from the camera.
 - **Form checks today:** plank (4 faults) and squat (2). The other six moves only check that the user keeps moving.
 - **Network.** Feedback arrives after one round trip; cues are not frame-instant.
+- **Voice understanding** is keyword-based (English, plus basic French) on top of the browser's speech recognition (Chrome/Edge/Safari). Unclear phrases get "Sorry, say continue or rest."
 - **Live camera:** the demo uses the presenter's own recorded and live attempts. Smart glasses (Meta's Wearables Device Access Toolkit gives camera access) are future work. A first-person view cannot see the body, so they would suit other exercises.
 
 ## 7. AWS deployment
