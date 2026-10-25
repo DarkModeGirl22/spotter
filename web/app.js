@@ -192,11 +192,17 @@ function stopListening() {
 }
 async function onHeard(text) {
   $("heard").textContent = `“${text}”`;
-  if (phase !== "work") return;
-  const t = (performance.now() - workStart) / 1000;
+  if (!phase || phase === "done") return;
+  const now = paused ? pausedAt : performance.now();
+  const t = phase === "work" ? (now - workStart) / 1000 : 0;
+  const left = phase === "work" || phase === "rest" || phase === "prep"
+    ? Math.max(0, (frozen !== null && phase === "work" ? frozen : phaseEnd - now) / 1000) : null;
+  const nxt = plan && plan.items[idx + 1];
+  const p = phase === "starting" ? "setup" : phase;
   try {
-    const r = await post("api/hear", { session, state, t, text });
-    state = r.state; stateVersion += 1;
+    const r = await post("api/hear", { session, state: p === "work" ? state : null, t, text, phase: p, left,
+                                       next: nxt ? nxt.name : null });
+    if (p === "work") { state = r.state; stateVersion += 1; }
     handle(r.actions, r.trace);
   } catch (_) { /* ignore */ }
 }
@@ -231,6 +237,7 @@ function enterPrep() {
   coach.setMove(ex.move);
   if (plan.video) { setPhase("prep", 3); speak(`${ex.name}. Watching your video.`); return; }
   // live: the coach checks the camera view first and starts only when it can judge the exercise
+  startListening();
   phase = "setup"; setup = { okStreak: 0, lastIssue: null, lastSpoke: performance.now(), t0: performance.now() };
   $("exPhase").textContent = "CAMERA CHECK"; $("timer").textContent = "SETUP";
   const intro = ["Take your time. Set the phone down, get into position, and I'll tell you when I can see you.",
@@ -394,6 +401,10 @@ function handle(actions, trace) {
       const item = Object.values(WORKOUTS).flatMap((w) => w.items).find((i) => i.id === a.to);
       if (item) { plan.items[idx] = item; $("exName").textContent = item.name; coach.setMove(item.move); $("exPhase").textContent = "GO"; }
     }
+    else if (a.type === "pause_workout") { setPaused(true, true); }
+    else if (a.type === "resume_workout") { setPaused(false, true); }
+    else if (a.type === "skip") { setTimeout(voiceSkip, 900); }
+    else if (a.type === "end_workout") { ending = true; setTimeout(finish, 2200); }
     else if (a.type === "end_set") { ending = true; frozen = null; setTimeout(endExercise, 1500); }
   }
 }
@@ -476,13 +487,32 @@ function downloadTrace() {
 }
 
 // ---------- controls
-$("btnPause").onclick = () => {
-  paused = !paused;
+function setPaused(on, byVoice = false) {
+  if (on === paused) return;
+  paused = on;
   $("btnPause").textContent = paused ? "RESUME" : "PAUSE";
-  if (paused) { pausedAt = performance.now(); $("video").pause(); speechSynthesis && speechSynthesis.cancel(); }
-  else { const d = performance.now() - pausedAt; phaseEnd += d; workStart += d; $("video").play(); }
-};
-$("btnSkip").onclick = () => { if (phase === "work") endExercise(); else if (phase === "rest") nextAfterRest(); else if (phase === "prep" || phase === "setup") { phase = "starting"; enterWork(); } };
+  if (paused) {
+    pausedAt = performance.now(); $("video").pause();
+    if (!byVoice) { try { voiceEl.pause(); } catch (_) {} try { speechSynthesis && speechSynthesis.cancel(); } catch (_) {} }
+    $("exPhase").dataset.before = $("exPhase").textContent; $("exPhase").textContent = "PAUSED";
+  } else {
+    const d = performance.now() - pausedAt; phaseEnd += d; workStart += d;
+    if (setup) setup.lastSpoke = performance.now();
+    if (plan && plan.video && phase === "work") $("video").play();
+    $("exPhase").textContent = $("exPhase").dataset.before || "GO";
+  }
+}
+$("btnPause").onclick = () => setPaused(!paused);
+$("btnSkip").onclick = () => { setPaused(false); if (phase === "work") endExercise(); else if (phase === "rest") nextAfterRest(); else if (phase === "prep" || phase === "setup") { phase = "starting"; enterWork(); } };
+function voiceSkip() {             // "skip" / "next exercise" said out loud
+  setPaused(false); hideAsk();
+  if (phase === "work") return endExercise();
+  if (phase === "rest") return nextAfterRest();
+  if (phase === "prep" || phase === "setup") {          // not started yet: move to the next exercise
+    if (idx >= plan.items.length - 1) return finish();
+    idx += 1; enterPrep();
+  }
+}
 $("btnEnd").onclick = () => finish();
 $("btnTrace").onclick = () => { $("trace").hidden = !$("trace").hidden; };
 $("btnTraceX").onclick = () => { $("trace").hidden = true; };

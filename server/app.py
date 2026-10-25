@@ -123,15 +123,18 @@ def answer(body: AnswerIn):
 
 class HearIn(BaseModel):
     session: str
-    state: dict
-    t: float
+    state: dict | None = None
+    t: float = 0.0
     text: str
+    phase: str = "work"            # setup / prep / work / rest: voice works during the whole workout
+    left: float | None = None      # seconds left on the client's timer
+    next: str | None = None        # name of the next exercise
 
 
 @app.post("/api/hear")
 def hear(body: HearIn):
     """The user spoke to the coach (browser speech-to-text): understand it and act."""
-    state, actions, trace = coach.hear(body.state, body.text[:200], body.t)
+    state, actions, trace = coach.hear(body.state, body.text[:200], body.t, body.phase, body.left, body.next)
     _log_trace(body.session, trace)
     return {"state": state, "actions": actions, "trace": trace}
 

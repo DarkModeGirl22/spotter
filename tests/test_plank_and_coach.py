@@ -129,3 +129,28 @@ def test_recognizes_wrong_exercise_and_asks_in_video_mode():
     assert ask and "switch_exercise" in ask[0]["options"]
     state, a, _ = coach.answer(state, "switch_exercise", 4.0)
     assert state["exercise"] == "plank" and any(x["type"] == "switch_exercise" for x in a)
+
+
+def test_voice_commands_work_any_time():
+    from server.agent.coach import hear
+    state = coach.new_state("plank")
+    for text, kind in (("pause", "pause_workout"), ("ok let's go", "resume_workout"), ("skip", "skip"),
+                       ("end the workout", "end_workout")):
+        _, acts, _ = hear(state, text, 10.0)
+        assert any(a["type"] == kind for a in acts), text
+    _, acts, _ = hear(None, "pause", 0.0, phase="setup")          # before the set even started
+    assert any(a["type"] == "pause_workout" for a in acts)
+    _, acts, _ = hear(state, "continue", 0.0, phase="rest")       # "continue" in rest = start now
+    assert any(a["type"] == "skip" for a in acts)
+
+
+def test_am_i_doing_it_right_uses_what_the_camera_sees():
+    from server.agent.coach import hear
+    state, *_ = run(coach.new_state("plank"), [plank_pose()] * 3)
+    _, acts, _ = hear(state, "am I doing it right?", 2.0)
+    assert acts[0]["text"].startswith("Yes")
+    state, *_ = run(coach.new_state("plank"), [plank_pose(hip_dy=50)] * 3)
+    _, acts, _ = hear(state, "how's my form", 2.0)
+    assert acts[0]["text"].startswith("Not quite") and "hips" in acts[0]["text"]
+    _, acts, _ = hear(state, "how long is left", 20.0, left=40)
+    assert "40 seconds left" in acts[0]["text"]
