@@ -11,30 +11,63 @@ from copy import deepcopy
 from ..vision.exercises import Observation
 from . import brain
 
+# Several phrasings per situation: the coach picks one it has not just said, so it sounds human.
 CUES = {
-    "hips_low": "Lift your hips! Squeeze your belly.",
-    "hips_high": "Hips down a little. Flat back.",
-    "knees_down": "Knees up! You can do it.",
-    "collapsed": "Push the floor away, lift your chest.",
-    "not_in_plank_position": "Get into your plank. Elbows under shoulders.",
-    "body_not_visible": "I can't see your whole body. Move the phone back.",
-    "legs_not_visible": "I can't see your legs. Move the phone back.",
-    "no_person": "I can't see you. Come back in front of the camera.",
-    "knees_in": "Push your knees out!",
-    "shallow": "Go a little lower!",
-    "not_moving": "Keep moving, don't stop now!",
+    "hips_low": ["Lift your hips a little, squeeze your belly.",
+                 "Bring your hips up in line with your shoulders.",
+                 "Hips are dropping. Tighten your core and lift them.",
+                 "Imagine a straight line from head to heels. Hips up."],
+    "hips_high": ["Lower your hips a bit, flat back.",
+                  "Hips are a little high. Bring them down in line.",
+                  "Drop the hips slightly, make your body a straight plank.",
+                  "Flatten your back, hips down a touch."],
+    "knees_down": ["Knees up if you can. You've got this.",
+                   "Try lifting your knees off the floor.",
+                   "Push through your toes and lift your knees."],
+    "collapsed": ["Push the floor away and lift your chest.",
+                  "Press into your forearms, lift up again.",
+                  "Come back up. Shoulders over elbows."],
+    "not_in_plank_position": ["Get into your plank. Elbows under shoulders.",
+                              "Down into your plank when you're ready."],
+    "body_not_visible": ["I'm missing part of your body. Could you move the phone back a little?",
+                         "I can only see part of you. Try placing the phone a bit further away."],
+    "legs_not_visible": ["I can't see your legs. Could you move the phone back a bit?",
+                         "Your legs are out of the picture. A little further away, please."],
+    "no_person": ["I lost you for a second. Come back in front of the phone.",
+                  "Where did you go? Step back into the picture."],
+    "knees_in": ["Push your knees out, over your toes.",
+                 "Knees are caving in. Open them up.",
+                 "Keep your knees in line with your feet."],
+    "shallow": ["Try going a little lower.",
+                "A bit deeper on the next one.",
+                "Sit back a little more, as if onto a chair."],
+    "not_moving": ["Keep moving, you're doing great.",
+                   "Don't stop now, a few more.",
+                   "Stay with me, keep it going."],
 }
 KNEE_PLANK_IGNORES = {"knees_down"}          # in a knee plank, knees on the floor is correct
-PRAISE = ["Perfect, hold it!", "Yes! That's it.", "Much better!", "Beautiful form!"]
-MOTIVATION = ["You're strong, keep going!", "Breathe. Stay tight.", "Looking great, keep it up!"]
+PRAISE = ["Perfect, hold it there.", "Yes, that's it.", "Much better.", "Beautiful form.",
+          "That's exactly right.", "Nice correction."]
+MOTIVATION = ["You're strong, keep going.", "Breathe, and stay tight.", "Looking great, keep it up.",
+              "Steady and strong, nice.", "You're doing really well."]
+
+
+def pick(options, state=None):
+    """A phrasing not used in the last few lines, so the coach does not repeat itself."""
+    if isinstance(options, str):
+        return options
+    recent = (state or {}).get("said", [])
+    fresh = [o for o in options if o not in recent] or list(options)
+    return random.choice(fresh)
+
 
 PERSIST_FRAMES = 2     # a fault must be seen in 2 of the last 3 frames before we react
 CUE_COOLDOWN = 4.0     # seconds between two cues
 FIX_WINDOW = 5.0       # seconds the user gets to fix a fault before the agent escalates
 ESCALATE_AFTER = 2     # escalate when the same fault needs a 2nd failed cue
 ASK_TIMEOUT = 10.0     # unanswered question -> safest choice (pause the set)
-STOP_FRAMES = 3        # ~1.2 s of "not exercising" frames = the user stopped
-MIN_ACTIVE = 3.0       # only after the user has really started
+STOP_FRAMES = 4        # ~1.6 s of "not exercising" frames = the user stopped
+MIN_ACTIVE = 5.0       # only after the user has really started
 RESUME_FRAMES = 2      # back in position for 2 frames = resume
 REST_AFTER = 20.0      # stopped this long without coming back = rest, end the set
 STOP_SIGNS = {"not_in_plank_position", "collapsed", "no_person", "not_moving", "body_not_visible",
@@ -66,6 +99,7 @@ def _persistent_fault(state: dict) -> str | None:
 def _say(actions, state, t, text, kind):
     actions.append({"type": "say", "text": text, "kind": kind})
     state["last_cue_t"] = t
+    state["said"] = (state.get("said", []) + [text])[-6:]
 
 
 def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
@@ -146,7 +180,7 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
             state["awaiting_fix"] = None
             trace.append({"event": "recheck", "t": round(t, 2), "fault": waiting["fault"], "result": "fixed",
                           "seconds_to_fix": round(t - waiting["cued_at"], 2)})
-            _say(actions, state, t, random.choice(PRAISE), "praise")
+            _say(actions, state, t, pick(PRAISE, state), "praise")
             state["good_since"] = t
             return state, actions, trace
         if still and t - waiting["cued_at"] >= FIX_WINDOW:
@@ -157,7 +191,7 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
                 state["awaiting_fix"] = None
             else:
                 waiting["cued_at"] = t
-                _say(actions, state, t, CUES.get(waiting["fault"], "Fix your form!"), "correction")
+                _say(actions, state, t, pick(CUES.get(waiting["fault"], "Check your form."), state), "correction")
                 trace.append({"event": "act", "t": round(t, 2), "action": "say", "why": "repeat cue"})
             return state, actions, trace
 
@@ -166,7 +200,7 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
         state["cue_counts"][fault] = state["cue_counts"].get(fault, 0) + 1
         state["awaiting_fix"] = {"fault": fault, "cued_at": t, "failed": 0}
         state["good_since"] = None
-        _say(actions, state, t, CUES.get(fault, "Fix your form!"), "correction")
+        _say(actions, state, t, pick(CUES.get(fault, "Check your form."), state), "correction")
         trace.append({"event": "decide", "t": round(t, 2), "fault": fault, "decision": "cue_and_recheck",
                       "decided_by": "rules"})
         return state, actions, trace
@@ -175,7 +209,7 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
     if not fault:
         state["good_since"] = state["good_since"] if state["good_since"] is not None else t
         if t - state["good_since"] >= 12 and t - state["last_cue_t"] >= 10:
-            _say(actions, state, t, random.choice(MOTIVATION), "motivation")
+            _say(actions, state, t, pick(MOTIVATION, state), "motivation")
             state["good_since"] = t
     return state, actions, trace
 

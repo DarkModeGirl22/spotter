@@ -5,11 +5,11 @@ const WORKOUTS = {
   lower: { name: "Lower body", items: [
     { id: "squat", name: "Squats", move: "squat", tip: "Face the phone. Whole body in view." },
     { id: "lunge", name: "Reverse lunges", move: "lunge", tip: "Turn sideways to the phone." },
-    { id: "bridge", name: "Glute bridge", move: "bridge", tip: "Lie on your back, side to the phone." },
+    { id: "bridge", name: "Glute bridge", move: "bridge", tip: "Lay your phone sideways, and lie on your back with your side to it." },
     { id: "legraise", name: "Side leg raises", move: "legraise", tip: "Face the phone, hands on hips." },
   ] },
   upper: { name: "Upper body", items: [
-    { id: "plank", name: "Plank", move: "plank", tip: "Phone on the floor, to your side." },
+    { id: "plank", name: "Plank", move: "plank", tip: "Lay your phone sideways on the floor, a couple of meters to your side." },
     { id: "armcircles", name: "Arm circles", move: "armcircles", tip: "Face the phone, arms out." },
     { id: "press", name: "Overhead press", move: "press", tip: "Face the phone. Push your hands to the sky." },
     { id: "wallpush", name: "Wall push-ups", move: "wallpush", tip: "Side to the phone, hands on the wall." },
@@ -98,7 +98,12 @@ async function openSource() {
     return;   // the video starts playing when the set starts
   } else {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 720 } }, audio: false });
+      video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+    // widest view the camera allows (some phones support optical zoom-out)
+    try {
+      const track = stream.getVideoTracks()[0], caps = track.getCapabilities ? track.getCapabilities() : {};
+      if (caps.zoom) await track.applyConstraints({ advanced: [{ zoom: caps.zoom.min }] });
+    } catch (_) {}
     v.srcObject = stream;
     document.querySelector(".cam-panel").classList.add("mirror");
   }
@@ -224,14 +229,23 @@ function enterPrep() {
   // live: the coach checks the camera view first and starts only when it can judge the exercise
   phase = "setup"; setup = { okStreak: 0, lastIssue: null, lastSpoke: performance.now(), t0: performance.now() };
   $("exPhase").textContent = "CAMERA CHECK"; $("timer").textContent = "SETUP";
-  speak(`${ex.name}. ${ex.tip}`);
+  const intro = ["Take your time. Set the phone down, get into position, and I'll tell you when I can see you.",
+    "No rush. Place your phone, get ready, and I'll let you know when everything looks good.",
+    "Get yourself set up. I'll wait until I can see you properly."];
+  speak(`${ex.name}. ${ex.tip} ${pickLine(intro)}`);
 }
 
-let setup = null;
+let setup = null, lastLines = [];
+function pickLine(options) {               // never the same sentence twice in a row
+  const fresh = options.filter((o) => !lastLines.includes(o));
+  const line = (fresh.length ? fresh : options)[Math.floor(Math.random() * (fresh.length ? fresh.length : options.length))];
+  lastLines = [...lastLines, line].slice(-4);
+  return line;
+}
 const SETUP_LABELS = {
   too_dark: "TOO DARK", blurry: "BLURRY", no_person: "NO ONE IN VIEW", cut_off: "MOVE BACK",
   too_far: "COME CLOSER", too_close: "STEP BACK", need_side: "TURN SIDEWAYS", need_front: "FACE THE PHONE",
-  get_in_position: "GET IN POSITION", stand_up: "STAND UP",
+  get_in_position: "GET IN POSITION", stand_up: "STAND UP", rotate_phone: "TURN PHONE SIDEWAYS",
 };
 function grabFrame() {
   const v = $("video");
@@ -255,19 +269,20 @@ async function sendSetupFrame() {
     const now = performance.now();
     if (r.ok) {
       setup.okStreak += 1;
-      if (setup.okStreak >= 3) {
+      if (setup.okStreak >= 5 && performance.now() > speakingUntil) {   // steady ~3 s, never cut the coach off
         traceLog.push({ exercise: current().id, event: "setup", t: 0, result: "ok", metrics: r.metrics });
         addTraceItem({ event: "setup", t: 0, result: "camera ok", ...r.metrics });
         phase = "starting";
-        speak(r.message);
+        speak(pickLine(r.messages || [r.message]));
         setTimeout(enterWork, 2200);
       }
       return;
     }
     setup.okStreak = 0;
     // speak when the problem changes, or remind every 8 s (never talk over the intro line)
-    if (now - setup.t0 > 3500 && ((r.issue !== setup.lastIssue && now - setup.lastSpoke > 2500) || now - setup.lastSpoke > 8000)) {
-      speak(r.message, "correction");
+    // give the person time to place the phone (8 s of silence), then calm, spaced-out reminders
+    if (now - setup.t0 > 8000 && ((r.issue !== setup.lastIssue && now - setup.lastSpoke > 4000) || now - setup.lastSpoke > 12000)) {
+      speak(pickLine(r.messages || [r.message]), "correction");
       traceLog.push({ exercise: current().id, event: "setup", t: 0, result: r.issue, metrics: r.metrics });
       addTraceItem({ event: "setup", t: 0, result: r.issue });
       setup.lastIssue = r.issue; setup.lastSpoke = now;

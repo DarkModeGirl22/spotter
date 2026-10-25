@@ -15,18 +15,31 @@ SIDE_VIEW = {"plank", "lunge", "bridge", "wallpush"}       # judged from the sid
 FLOOR = {"plank", "bridge"}                                # start on the floor
 BODY = [NOSE, L_SHOULDER, R_SHOULDER, L_HIP, R_HIP, L_KNEE, R_KNEE, L_ANKLE, R_ANKLE]
 
-MESSAGES = {
-    "too_dark": "It's too dark. Turn on a light or face a window.",
-    "blurry": "The image is blurry. Wipe the camera and keep the phone still.",
-    "no_person": "I can't see you yet. Step in front of the phone.",
-    "cut_off": "Part of your body is out of the picture. Move back a little.",
-    "too_far": "You're too far. Come a bit closer to the phone.",
-    "too_close": "You're too close. Take a step back.",
-    "need_side": "Turn sideways to the phone, so I can see your body line.",
-    "need_front": "Face the phone, please.",
-    "get_in_position": "Good spot! Now get into position.",
-    "stand_up": "This one is done standing. Stand up, please.",
-    "ok": "Perfect, I can see you well. Let's go!",
+MESSAGES = {   # several phrasings each; the app avoids saying the same one twice in a row
+    "too_dark": ["It's a bit dark for me. Could you turn on a light?",
+                 "I need a little more light to see you well."],
+    "blurry": ["The picture is blurry. Maybe wipe the camera?",
+               "I can't see clearly. Keep the phone still for me."],
+    "no_person": ["Whenever you're ready, step in front of the phone.",
+                  "I don't see you yet. Take your time."],
+    "cut_off": ["I can only see part of you. Try moving the phone a bit further away.",
+                "Part of your body is out of the picture. A little further back, please."],
+    "too_far": ["You're quite far. You can come a bit closer.",
+                "Come a little closer to the phone."],
+    "too_close": ["You're a bit close. Take a step back.",
+                  "A little further away, please, so I see all of you."],
+    "need_side": ["For this one, turn sideways to the phone so I see your body line.",
+                  "Could you turn to the side? I need to see you in profile."],
+    "need_front": ["Face the phone for this one, please.",
+                   "Turn towards the phone so I can see you from the front."],
+    "rotate_phone": ["For this one, turn your phone sideways, so your whole body fits.",
+                     "Lay the phone horizontally, that gives me room to see you from head to toe."],
+    "get_in_position": ["Good spot. Get into position whenever you're ready.",
+                        "The phone is well placed. Get into position, I'll start when you're set."],
+    "stand_up": ["This one is done standing. Stand up whenever you're ready.",
+                 "Let's do this one standing up."],
+    "ok": ["I can see you well. Let's go!", "Perfect, you're all set. Here we go!",
+           "Great position. Let's start!"],
 }
 
 
@@ -43,6 +56,8 @@ def check(exercise: str, image: np.ndarray, pose: Pose | None) -> dict:
         issue = "too_dark"
     elif q["sharpness"] < 15:
         issue = "blurry"
+    elif exercise in FLOOR and image.shape[0] > image.shape[1] * 1.1:
+        issue = "rotate_phone"           # floor exercise filmed in portrait: the body cannot fit
     elif pose is None:
         issue = "no_person"
     else:
@@ -81,7 +96,8 @@ def check(exercise: str, image: np.ndarray, pose: Pose | None) -> dict:
             elif exercise == "bridge" and _upright(pose):
                 issue = "get_in_position"
     issue = issue or "ok"
-    return {"ok": issue == "ok", "issue": issue, "message": MESSAGES[issue], "metrics": m}
+    return {"ok": issue == "ok", "issue": issue, "message": MESSAGES[issue][0], "messages": MESSAGES[issue],
+            "metrics": m}
 
 
 def _upright(pose: Pose) -> bool:

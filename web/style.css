@@ -169,3 +169,14 @@ button { font-family: var(--head); cursor: pointer; }
 .steps { margin: 18px 0 20px; padding-left: 20px; font: 400 15px/1.6 var(--body); }
 .steps li { margin-bottom: 8px; }
 .sound-btn { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; background: var(--red); color: #fff; border: 0; padding: 16px 20px; font: 800 14px var(--head); letter-spacing: .04em; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+
+/* phone held sideways (floor exercises): coach left, you right */
+@media (orientation: landscape) and (max-height: 600px) {
+  .screen.workout { max-width: none; display: grid; grid-template-columns: 1fr 1.4fr; grid-template-rows: auto auto 1fr auto; }
+  .screen.workout > .topbar, .screen.workout > .setbar, .screen.workout > .controls { grid-column: 1 / -1; }
+  .screen.workout > .topbar { height: 40px; }
+  .coach-panel { border-bottom: 0; border-right: 2px solid var(--ink); }
+  .controls button { height: 44px; }
+  .timer { font-size: 34px; }
+  .ex-name { font-size: 20px; }
+}
