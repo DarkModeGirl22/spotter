@@ -138,7 +138,8 @@ Voice in both directions (Amazon Polly neural voice, browser speech recognition)
 - **Serverless, pay per request:** AWS Lambda + Function URL, no server running 24/7; Bedrock is called only on escalations, never per frame; a $20 monthly spend limit on the account.
 - **Privacy:** frames are analysed in memory and discarded; nothing is stored; traces contain only numbers and labels.
 - **Stateless:** the agent state travels with each request, so no database and nothing about the user kept on the server.
-- **Least-privilege role** in `deploy/deploy.sh` (logs, Polly, Bedrock only); 14-day log retention.
+- **Security:** HTTPS only; no AWS credentials in the browser; bounded inputs (frame size, text length); least-privilege role and 14-day log retention in `deploy/deploy.sh` (the live function was created in the console with a broader role, see [REPORT §7](docs/REPORT.md#7-aws-deployment)).
+- **Observability:** every agent event is one JSON line in CloudWatch Logs, shown live in the app's Trace panel and downloadable as JSON.
 - **Not medical advice;** stop if something hurts.
 
 ---
@@ -152,7 +153,7 @@ Phone browser ──JPEG every 0.4 s + agent state──▶ AWS Lambda (Python 3
   camera, coach animation                          ├─ OpenCV 5 dnn: person detector + pose (33 keypoints)
   speech recognition (user talks)                  ├─ camera check · form analyzers · exercise recognition
   plays the voice, shows questions                 ├─ coach agent: cue → re-check → decide → ask
-                                                   │     └─ Amazon Bedrock (Claude, tool use), rules fallback
+                                                   │     └─ deterministic policy (live demo); Amazon Bedrock (Claude tool use) if enabled
                                                    ├─ Amazon Polly: coach voice (cached MP3s)
                                                    └─ CloudWatch Logs: one JSON line per agent event
 ```

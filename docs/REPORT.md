@@ -15,9 +15,11 @@ Most people train at home alone, following videos. A video cannot see you, so it
 
 ## 2. What the user experiences
 
+Spotter is made for **practising live** in front of a phone. *Upload a video* exists only to demonstrate and test the same coaching on recorded footage. The 8 exercises below are a starting set chosen to show the full loop; the goal is a complete coach with many more exercises and goal-based programmes.
+
 1. Pick **Lower body** (squats, reverse lunges, glute bridge, side leg raises) or **Upper body** (plank, arm circles, overhead press, wall push-ups). Each is 4 × 60 s with 30 s of rest.
 2. Top half of the screen: the coach, an animated character (drawn in code, original design) doing the move and talking. Bottom half: the user's camera with their skeleton drawn on top. Wrong joints turn red.
-3. The coach speaks short cues ("Lift your hips!"), praises fixes ("Perfect, hold it!"), motivates ("Ten seconds left!"), and asks questions with big buttons when a plan change is needed.
+3. The coach speaks short cues ("Lift your hips!"), praises fixes ("Perfect, hold it!"), motivates ("Ten seconds left!"), and asks questions when a plan change is needed. The user answers by voice (or taps), and can talk to her at any moment: pause, skip, end, "am I doing it right?".
 4. At the end: a summary (corrections, confirmed fixes, average time to fix, plan changes, questions asked) and a downloadable agent trace.
 
 ## 3. Architecture
@@ -26,7 +28,8 @@ Most people train at home alone, following videos. A video cannot see you, so it
 
 - **Browser** (phone or laptop): captures a 480 px JPEG every 0.4 s and sends it with the agent state. It plays the coach animation and voice and shows the questions.
 - **AWS Lambda** (Python 3.13, 2 GB, Function URL over HTTPS) runs the OpenCV 5 pipeline and the agent. The server is **stateless**: the agent state travels with each request, so Lambda can scale with no database.
-- **Amazon Bedrock** (Claude, Converse API with tool use) makes the plan-change decisions.
+- **Plan-change decisions:** a deterministic policy (`brain.fallback_policy`) decides by default, and that is what the live demo runs. **Amazon Bedrock** (Claude, Converse API with tool use) is wired in and takes over when `SPOTTER_MODEL_ID` is set; any Bedrock error falls back to the policy. Bedrock model access was still pending (use-case form) at submission time, so Bedrock is not used in the live demo.
+- **S3** holds the deployment package; on each cold start the function loads the latest `server/`, `web/` and `models/` from the GitHub repo (§7).
 - **Amazon Polly** (neural voice) speaks the coach's lines. Audio is cached per phrase.
 - **CloudWatch Logs** receives one JSON line per agent event (perceive → decide → act → re-check → human), which gives observability.
 
@@ -67,8 +70,8 @@ Thresholds are normalized by body length, so they don't depend on distance to th
 | Filter | A fault must appear in 2 of the last 3 frames (anti-flicker) | `coach._persistent_fault` |
 | Act | Spoken cue for that fault | `coach.step` |
 | Re-check | The next frames decide: **fixed** (praise), **replaced by another fault** (no praise, handle the new one), or **not fixed** after 5 s (repeat the cue once) | `coach.step` |
-| Decide | Second failed cue → Amazon Bedrock picks one tool: `switch_variant`, `shorten_set`, `ask_user` or `say`. If Bedrock is unreachable, a deterministic policy picks the same kinds of action | `brain.decide` |
-| Human control | `ask_user` shows buttons (keep going / easier / stop). No answer in 10 s → safe default: pause the set | `coach.answer` |
+| Decide | Second failed cue → one tool is chosen: `switch_variant`, `shorten_set`, `ask_user` or `say`. A deterministic policy chooses by default (live demo); Amazon Bedrock (Claude tool use) chooses when enabled, with the policy as fallback | `brain.decide` |
+| Human control | `ask_user` asks out loud and shows the options (keep going / easier / stop); the user answers by voice or tap. No answer in 10 s → safe default: pause the set | `coach.answer` |
 | Stop detection | The user stops (drops out of position, stands up, leaves the frame, stops moving) for about 1.2 s → **the timer pauses at once**, the coach says "You held 14 seconds. That's already good!" and offers *I'll continue / Rest now*. The camera keeps watching: back in position → timer resumes by itself ("You're back!"), with paused time not counted. Gone for 20 s → the set ends as rest | `coach._while_stopped` |
 | Talking back | The user talks to the coach at any moment (camera check, set, rest), like with a human coach. Browser speech recognition → text → intent: commands **pause**, **go/resume**, **skip / next exercise**, **end the workout**; questions **"am I doing it right?"** (answered *yes* or *not quite + what to change* from the faults OpenCV saw in the last 3 frames, e.g. "Not quite: your hips are dropping. Lift your hips a little"), **"how long is left?"**, **"how many reps?"**, **"what's next?"**; answers **continue / rest / easier**, and **"it hurts"**, which always ends the set with a safety message. The mic is ignored while the coach speaks, so it never hears itself. Buttons remain as a fallback for noisy rooms | `coach.hear`, `coach.form_answer`, `/api/hear` |
 
@@ -213,7 +216,7 @@ Every fix is covered by a test (`tests/`) or measured by an evaluation script.
 
 ## 7. AWS deployment
 
-One command in AWS CloudShell: `bash deploy/deploy.sh`. It:
+**Scripted path:** one command in AWS CloudShell, `bash deploy/deploy.sh`. It:
 
 1. Builds a Lambda zip (OpenCV 5 wheels for Python 3.13, trimmed to 226 MB unzipped, under the 250 MB limit). The app's start-up was checked with exactly that package.
 2. Uploads the zip to S3.
@@ -223,6 +226,8 @@ One command in AWS CloudShell: `bash deploy/deploy.sh`. It:
 6. Sets log retention to 14 days and prints the link.
 
 Re-running the script updates the function in place.
+
+**What we actually did for the live demo:** CloudShell was blocked on our new account (pending account verification), so the script could not run there. We built the same zip, uploaded it to S3, and created the function and its Function URL in the Lambda console with the same settings. Two differences from the script remain: the live function uses a broader role created in the console (not the script's least-privilege role), and log retention is the account default. Moving the live function to the script's role is the first item on the to-do list.
 
 **Status: live** at https://3iblqdeawzjnsky7ihd6gu3jn40giofz.lambda-url.eu-north-1.on.aws/ (eu-north-1, Python 3.13, x86_64, 2048 MB, 30 s, code from S3). `/api/health` reports OpenCV 5.0.0.
 
@@ -239,12 +244,13 @@ So a frame every 0.4 s leaves plenty of margin.
 
 **Cost:** pay-per-request only, with no server running 24/7. Bedrock is called only on escalations, not per frame. A $20 monthly spend limit is set on the account.
 
-## 8. Responsible use
+## 8. Responsible use and security
 
 - **Privacy:** frames are analyzed in memory and discarded. No image is stored or logged; the trace contains only numbers and labels.
 - **Human control:** the agent never stops or changes a set because a model said so alone. Stopping goes through the user, and silence means a safe pause, never "push through."
 - **Safety tone:** motivation is encouraging, never shaming. Repeated failures lead to an easier variant, not more pressure. The home screen says to stop if something hurts.
 - **Not medical advice;** not for rehabilitation without a professional.
+- **Security:** HTTPS only (Function URL). No AWS credentials in the browser; the browser only talks to our API. The function is stateless and stores nothing. Inputs are bounded: frames up to ~1.5 MB, spoken text cut to 200 characters, voice text to 300 characters (Polly audio is cached, so repeated phrases cost nothing). The endpoint is public without login so judges can open it; a $20 account spend limit caps abuse. Least-privilege IAM role in `deploy/deploy.sh` (see §7 for the live function).
 - **Fairness:** accuracy across body types, skin tones and clothing has not been measured yet (see 6.6). That is the main evaluation gap.
 
 ## 9. How to reproduce

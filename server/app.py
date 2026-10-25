@@ -11,7 +11,7 @@ from pathlib import Path
 import cv2 as cv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .agent import brain, coach, voice
 from .vision.exercises import analyze
@@ -49,13 +49,13 @@ class FrameIn(BaseModel):
     session: str
     state: dict
     t: float
-    image: str  # base64 JPEG
+    image: str = Field(max_length=2_000_000)  # base64 JPEG (~1.5 MB max)
 
 
 class SetupIn(BaseModel):
     session: str
     exercise: str
-    image: str  # base64 JPEG
+    image: str = Field(max_length=2_000_000)  # base64 JPEG (~1.5 MB max)
 
 
 class AnswerIn(BaseModel):

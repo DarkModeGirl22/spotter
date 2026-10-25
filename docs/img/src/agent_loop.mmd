@@ -1,0 +1,28 @@
+flowchart TD
+  S0["⓪ ACTIVE PERCEPTION · camera check before each move<br/>light, blur, full body, distance, view angle<br/>→ tells the user how to fix the phone; starts only when it can judge"]
+  S0 --> P
+  P["① PERCEIVE · OpenCV 5<br/>pose → faults (hips_low, knees_down…)<br/>+ which exercise this looks like"]
+  P --> W{"Clearly a different<br/>exercise for ~2.4 s?"}
+  W -- yes --> WQ["Say so; ask:<br/>'Should I coach it as a plank?'"] --> H
+  W -- no --> ST{"User stopped?<br/>(out of position, left)"}
+  ST -- yes --> PA["Pause the timer<br/>'You held 32 s. Continue or rest?'"]
+  PA --> BK{"Back in position?"}
+  BK -- yes --> RS["Resume by itself"] --> LOOP1(("↻"))
+  BK -- "no, 20 s" --> END["End the set as rest"]
+  ST -- no --> F{"Fault in 2 of<br/>last 3 frames?"}
+  F -- no --> ENC["Encourage on good streaks"] --> LOOP2(("↻"))
+  F -- yes --> A["② ACT · spoken cue<br/>'Lift your hips!'"]
+  A --> R{"③ RE-CHECK<br/>on the next frames"}
+  R -- fixed --> PR["Praise<br/>'Perfect, hold it!'"] --> LOOP3(("↻"))
+  R -- "other fault / user left" --> LOOP4(("↻"))
+  R -- "not fixed (1st)" --> A
+  R -- "not fixed again" --> D["④ DECIDE · tool choice<br/>deterministic policy<br/>(Amazon Bedrock if enabled)"]
+  D --> SV["switch_variant<br/>→ knee plank"] --> LOOP5(("↻"))
+  D --> SS["shorten_set<br/>→ 10 s more"] --> LOOP6(("↻"))
+  D --> H["⑤ ASK THE HUMAN<br/>by voice or tap"]
+  H --> T{"Answer<br/>within 10 s?"}
+  T -- yes --> LOOP7(("↻"))
+  T -- no --> SAFE["Safe default: pause"]
+  V["🎤 USER SPEAKS, any time<br/>pause · go · skip · end · 'it hurts'<br/>'am I doing it right?' → answered from ①"]
+  V -.-> P
+  V -. "'it hurts'" .-> END

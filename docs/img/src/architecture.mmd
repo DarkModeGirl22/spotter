@@ -1,0 +1,42 @@
+flowchart LR
+  subgraph B["Phone / laptop browser (web/)"]
+    CAM["Camera<br/>(live, or uploaded video for demo)"]
+    MIC["Microphone<br/>browser speech recognition"]
+    UI["Web app<br/>coach animation · subtitles<br/>voice playback · question card"]
+  end
+  subgraph AWS["AWS (eu-north-1)"]
+    URL["Lambda Function URL<br/>HTTPS"]
+    subgraph L["AWS Lambda · Python 3.13 · 2 GB · stateless"]
+      DEC["cv.imdecode"]
+      DET["OpenCV 5 dnn<br/>person detector<br/>+ CLAHE / zoom re-detect"]
+      POSE["OpenCV 5 dnn<br/>pose model · 33 keypoints"]
+      SET["Camera check<br/>light · cv.Laplacian blur<br/>framing · distance · view"]
+      FORM["Form analyzers<br/>angles · hip-line deviation"]
+      REC["Exercise recognition<br/>pose signatures over 4 s"]
+      AG["Coach agent<br/>cue → re-check → decide → ask<br/>stop detection · voice intents"]
+      POL["Decision policy<br/>(deterministic, default)"]
+    end
+    BR["Amazon Bedrock<br/>Claude tool use<br/>(optional, falls back to policy)"]
+    PO["Amazon Polly<br/>neural voice"]
+    CW["CloudWatch Logs<br/>one JSON line per agent event"]
+    S3["S3<br/>deployment zip<br/>(OpenCV 5 + deps)"]
+  end
+  GH["GitHub repo<br/>latest server/ web/ models/<br/>loaded on cold start"]
+  CAM -- "JPEG every 0.4 s + agent state" --> URL
+  MIC -- "what the user said" --> URL
+  URL --> DEC --> DET --> POSE
+  POSE --> SET
+  POSE --> FORM
+  POSE --> REC
+  SET --> AG
+  FORM --> AG
+  REC --> AG
+  AG -- "plan change needed" --> POL
+  POL -. "if enabled" .-> BR
+  AG -- "actions + new state" --> UI
+  UI -- "human answer (voice or tap)" --> URL
+  UI -- "/api/voice text" --> URL
+  URL -.-> PO
+  AG --> CW
+  S3 -. "code package" .-> L
+  GH -. "live code" .-> L
