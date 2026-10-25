@@ -1,5 +1,7 @@
 # Spotter
 
+🟢 **Live on AWS Lambda:** https://3iblqdeawzjnsky7ihd6gu3jn40giofz.lambda-url.eu-north-1.on.aws/
+
 📄 **[Technical report](docs/REPORT.md)** · 🧠 [Agent loop diagram](docs/img/agent_loop.png) · 🏗️ [Architecture](docs/img/architecture.png) · 📊 [Evaluation](docs/eval/)
 
 A talking AI workout coach. Your phone camera watches your form with **OpenCV 5**, an agent decides what to do about it, and the coach **tells you out loud**, re-checks, and changes the plan when your body needs it.

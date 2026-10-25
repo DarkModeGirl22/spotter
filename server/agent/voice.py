@@ -20,12 +20,17 @@ def synthesize(text: str) -> bytes | None:
     path = CACHE / f"{key}.mp3"
     if path.exists():
         return path.read_bytes()
-    try:
-        import boto3
-        polly = boto3.client("polly", region_name=REGION)
-        resp = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId=VOICE, Engine="neural")
-        audio = resp["AudioStream"].read()
-    except Exception:
+    audio = None
+    import boto3
+    for region, engine in ((REGION, "neural"), (os.environ.get("AWS_REGION", "eu-north-1"), "standard")):
+        try:
+            polly = boto3.client("polly", region_name=region)
+            resp = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId=VOICE, Engine=engine)
+            audio = resp["AudioStream"].read()
+            break
+        except Exception as exc:  # logged to CloudWatch; the browser voice takes over
+            print(f"polly {region}/{engine} failed: {type(exc).__name__}: {exc}")
+    if audio is None:
         return None
     CACHE.mkdir(parents=True, exist_ok=True)
     path.write_bytes(audio)

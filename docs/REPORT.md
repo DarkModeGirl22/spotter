@@ -117,7 +117,7 @@ Full trace with per-frame metrics: `docs/eval/replay_plank/trace.json`.
 
 Before the fixes in §6.4 this was 73/74 (one piked frame read as "knees down").
 
-Pose latency (person detector + pose model, CPU, one core of the development container): **median 33.8 ms, p95 49.0 ms**. Lambda latency: *to be measured after deployment* (§7).
+Pose latency (person detector + pose model, CPU, one core of the development container): **median 33.8 ms, p95 49.0 ms**. On Lambda: 35–44 ms warm (§7).
 
 ### 6.2 Agent: task success, failure handling, human control
 
@@ -198,7 +198,16 @@ One command in AWS CloudShell: `bash deploy/deploy.sh`. It:
 
 Re-running the script updates the function in place.
 
-**Status:** *(fill in after deployment: Function URL, measured Lambda cold/warm latency, Bedrock model id)*
+**Status: live** at https://3iblqdeawzjnsky7ihd6gu3jn40giofz.lambda-url.eu-north-1.on.aws/ (eu-north-1, Python 3.13, x86_64, 2048 MB, 30 s, code from S3). `/api/health` reports OpenCV 5.0.0.
+
+Measured on the deployed function from a laptop in Lille, one 480×360 JPEG per request:
+
+| | OpenCV 5 time on Lambda | Round trip from the browser |
+|---|---|---|
+| first request (models loading) | 420 ms | 477 ms |
+| warm requests | 35–44 ms | 93–103 ms |
+
+So a frame every 0.4 s leaves plenty of margin.
 
 **Cost:** pay-per-request only, with no server running 24/7. Bedrock is called only on escalations, not per frame. A $20 monthly spend limit is set on the account.
 
