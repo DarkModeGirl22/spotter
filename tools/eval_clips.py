@@ -48,7 +48,7 @@ def run_clip(est: PoseEstimator, path: Path, exercise: str, start: int = 0, end:
             img = cv.resize(img, (480, round(img.shape[0] * 480 / img.shape[1])))
             pose = est.estimate(img)
             obs = analyze(exercise, pose)
-            state, acts, tr = coach.step(state, obs, (i - start) / fps)
+            state, acts, tr = coach.step(state, obs, (i - start) / fps, pose)
             actions += acts
             trace += tr
             frames.append((img, pose, obs))

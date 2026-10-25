@@ -25,12 +25,13 @@ def main():
     ap.add_argument("--dt", type=float, default=0.4, help="seconds between analyzed frames")
     ap.add_argument("--every", type=int, default=1, help="analyze one frame out of N")
     ap.add_argument("--out", default="docs/eval/replay")
+    ap.add_argument("--mode", default="live", choices=["live", "video"])
     args = ap.parse_args()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
     est, cap = PoseEstimator(), cv.VideoCapture(args.video)
-    state, t, i, rows, events = coach.new_state(args.exercise, duration=10_000), 0.0, 0, [], []
+    state, t, i, rows, events = coach.new_state(args.exercise, duration=10_000, mode=args.mode), 0.0, 0, [], []
     while True:
         ok, img = cap.read()
         if not ok:
@@ -40,7 +41,7 @@ def main():
             continue
         pose = est.estimate(img)
         obs = analyze(args.exercise, pose)
-        state, actions, trace = coach.step(state, obs, t)
+        state, actions, trace = coach.step(state, obs, t, pose)
         rows.append({"frame": i - 1, "t": round(t, 2), "faults": obs.faults, "metrics": obs.metrics,
                      "pose_ms": round(pose.latency_ms, 1) if pose else None})
         said = [a["text"] for a in actions if a["type"] == "say"]

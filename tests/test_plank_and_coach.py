@@ -109,3 +109,23 @@ def test_voice_intents():
     state = coach.new_state("plank")
     state, acts, _ = hear(state, "my wrist hurts", 12.0)
     assert any(a["type"] == "end_set" and a["reason"] == "pain" for a in acts)
+
+
+def test_recognizes_wrong_exercise_and_asks_in_video_mode():
+    from server.vision.recognize import compatible, recognize
+    lying = {"tilt": 85, "knee_l": 175, "knee_r": 175, "elbow": 90, "wrist_up": -0.9, "wrist_over_head": -0.5,
+             "wrist_spread": 0.5, "front": 0.1, "knee_above_hip": 0.0, "shoulder_lift": 0.4, "hip_y": 3,
+             "ankle_lx": 2, "ankle_rx": 2, "ankle_gap": 0.1, "ankle_low": 0.0}
+    seen, conf, _ = recognize([lying] * 8)
+    assert seen == "plank" and conf >= 0.5
+    assert not compatible("squat", seen) and compatible("plank", seen) and compatible("squat", None)
+    state = coach.new_state("squat", mode="video")
+    state["recog"] = [lying] * 8
+    acts = []
+    for k in range(8):
+        state, a, _ = coach.step(state, analyze_plank(plank_pose()), k * 0.4)
+        acts += a
+    ask = [a for a in acts if a["type"] == "ask"]
+    assert ask and "switch_exercise" in ask[0]["options"]
+    state, a, _ = coach.answer(state, "switch_exercise", 4.0)
+    assert state["exercise"] == "plank" and any(x["type"] == "switch_exercise" for x in a)

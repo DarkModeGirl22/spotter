@@ -115,7 +115,7 @@ Full trace with per-frame metrics: `docs/eval/replay_plank/trace.json`.
 | 82–99 | good | 18 | 100 % | 18/18 | good ✅ |
 | **Total** | | **75** | **98.7 %** | **74/74 (100 %)** | **4/4** |
 
-Before the fixes in §6.4 this was 73/74 (one piked frame read as "knees down").
+Before the fixes in §6.5 this was 73/74 (one piked frame read as "knees down").
 
 Pose latency (person detector + pose model, CPU, one core of the development container): **median 33.8 ms, p95 49.0 ms**. On Lambda: 35–44 ms warm (§7).
 
@@ -136,11 +136,11 @@ Pose latency (person detector + pose model, CPU, one core of the development con
 | question unanswered while still exercising | escalation never blocks: plan change or question | ✅ | 6 | 2 | 0 |
 | Bedrock unavailable | fallback policy decides, no crash | ✅ | - | - | - |
 
-Plus 8 unit tests on synthetic keypoints (`pytest`).
+Plus 11 unit tests (`pytest`).
 
 ### 6.3 Robustness: the same frames under real capture conditions
 
-A clean test video says little about a phone propped on a living-room floor. `python -m tools.eval_robustness` re-runs every labeled frame through the full OpenCV 5 pipeline after transforming it: mirrored, phone tilted, far away, close, dark room, motion blur, heavy JPEG compression, feet cut off. Frame accuracy, **before → after** the fixes in §6.4:
+A clean test video says little about a phone propped on a living-room floor. `python -m tools.eval_robustness` re-runs every labeled frame through the full OpenCV 5 pipeline after transforming it: mirrored, phone tilted, far away, close, dark room, motion blur, heavy JPEG compression, feet cut off. Frame accuracy, **before → after** the fixes in §6.5:
 
 | Condition | Before | After | Remaining weakness |
 |---|---|---|---|
@@ -158,7 +158,30 @@ Full tables and an annotated picture of each failure: `docs/eval/robustness/`.
 
 **What this means for users:** hip sag is the subtlest fault, and it is the one that degrades first with distance, darkness and blur. So the camera check (§5) refuses to start in a dark room or with the user too far, and tells them how to fix it. The agent's 2-of-3-frames rule absorbs isolated misses, but not a sustained one (a far, dark camera can miss a real sag).
 
-### 6.4 Bugs found by testing, and fixes
+### 6.4 Is it the right exercise? (a failed test, then a fix)
+
+**Failed test (25 Oct, live on AWS):** we uploaded a *plank* video and told the app it was *squats*. The coach kept saying "Form OK" and counted down. It only checked squat geometry and never asked whether this *was* a squat. A human coach would have noticed at once.
+
+**Fix: exercise recognition** (`server/vision/recognize.py`). Each frame becomes a compact pose description: posture tilt, knee and elbow angles, hands relative to shoulders and head, feet relative to hips, all normalised by torso length. The last ~4 s are matched against the signature of each of the 8 exercises: lying prone with shoulders lifted = plank; lying with knees bent and up = bridge; upright with large symmetric knee motion = squat; asymmetric or split stance = lunge; wrists over the head = press; arms out at shoulder height = arm circles; one foot moving sideways = leg raise; leaning with hands forward = wall push-up. If a *clearly different* exercise persists for about 2.4 s:
+- **live:** the coach says so ("That looks like a plank, but this one is squats. Let's stand up for it."). If it continues, she asks whether to switch;
+- **uploaded video:** she asks right away ("This looks like a plank, not squats. Should I coach it as a plank?"). "Yes" (spoken or tapped) switches the exercise, the animation and the form checks.
+
+"Not sure" never counts as wrong, and squat ⇄ lunge are not flagged (they look alike for a few reps).
+
+| Video (real footage) | Analysed windows | Recognised as | Wrong-exercise alarms when the right exercise is selected |
+|---|---|---|---|
+| plank | 127 | plank 107 · not sure 20 | 0 |
+| squats | 97 | squat 82 · not sure 15 | 0 |
+| reverse lunges | 100 | lunge 81 · squat 3 · not sure 16 | 0 |
+
+| Wrong pairing | Result |
+|---|---|
+| plank video, *squats* selected (upload) | question after 4.0 s |
+| squat video, *plank* selected (live) | spoken remark after 5.6 s, question after 8.0 s |
+
+Limits: glute bridge, leg raises, arm circles, press and wall push-up signatures are checked only on synthetic poses, not on real footage yet.
+
+### 6.5 Bugs found by testing, and fixes
 
 | # | Found by | Symptom | Cause | Fix |
 |---|---|---|---|---|
@@ -174,7 +197,7 @@ Full tables and an annotated picture of each failure: `docs/eval/robustness/`.
 
 Every fix is covered by a test (`tests/`) or measured by an evaluation script.
 
-### 6.5 Failure cases and limitations
+### 6.6 Failure cases and limitations
 
 - **Transitions are missed:** frames 5 and 75 of the test video (the person moving between postures) return no person. The agent treats `no_person` like any fault: it reacts only if it persists, so short dropouts cause no false cue.
 - **One test video, one person:** the 98.6 % comes from one subject, one camera angle and one lighting. It shows the method works but is not a population-level accuracy. More clips (different bodies, clothes, floors) are the next step, and `tools/eval_clips.py` is ready for them.
@@ -219,7 +242,7 @@ So a frame every 0.4 s leaves plenty of margin.
 - **Human control:** the agent never stops or changes a set because a model said so alone. Stopping goes through the user, and silence means a safe pause, never "push through."
 - **Safety tone:** motivation is encouraging, never shaming. Repeated failures lead to an easier variant, not more pressure. The home screen says to stop if something hurts.
 - **Not medical advice;** not for rehabilitation without a professional.
-- **Fairness:** accuracy across body types, skin tones and clothing has not been measured yet (see 6.5). That is the main evaluation gap.
+- **Fairness:** accuracy across body types, skin tones and clothing has not been measured yet (see 6.6). That is the main evaluation gap.
 
 ## 9. How to reproduce
 

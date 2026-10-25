@@ -9,7 +9,10 @@ import random
 from copy import deepcopy
 
 from ..vision.exercises import Observation
+from ..vision.recognize import NAMES, WINDOW, compatible, features, recognize
 from . import brain
+
+WRONG_FRAMES = 6       # ~2.4 s of a clear, different exercise before the coach says something
 
 # Several phrasings per situation: the coach picks one it has not just said, so it sounds human.
 CUES = {
@@ -74,7 +77,7 @@ STOP_SIGNS = {"not_in_plank_position", "collapsed", "no_person", "not_moving", "
               "legs_not_visible"}
 
 
-def new_state(exercise: str, duration: int = 60) -> dict:
+def new_state(exercise: str, duration: int = 60, mode: str = "live") -> dict:
     return {
         "exercise": exercise, "variant": "standard", "duration": duration, "end_at": float(duration),
         "recent": [], "awaiting_fix": None, "cue_counts": {}, "last_cue_t": -99.0,
@@ -83,6 +86,8 @@ def new_state(exercise: str, duration: int = 60) -> dict:
         "activity": {"last": None, "still_since": None}, "step": 0,
         # stop detection: time actually spent working, consecutive "stopped" frames, open pause
         "active_time": 0.0, "last_t": None, "stop_frames": 0, "stopped": None,
+        # exercise recognition: recent body features, frames in a row that look like another exercise
+        "recog": [], "wrong_frames": 0, "wrong_said": 0, "mode": mode,
     }
 
 
@@ -102,7 +107,7 @@ def _say(actions, state, t, text, kind):
     state["said"] = (state.get("said", []) + [text])[-6:]
 
 
-def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
+def step(state: dict, obs: Observation, t: float, pose=None) -> tuple[dict, list, list]:
     """One loop iteration. t = seconds since the set started. Returns (state, actions, trace)."""
     state = deepcopy(state)
     state["step"] += 1
@@ -110,6 +115,18 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
     trace: list[dict] = [{"event": "perceive", "t": round(t, 2), "obs": obs.to_json()}]
     if state.get("ended"):          # set already over (user rested, pain, timeout): nothing more to do
         return state, actions, trace
+
+    # ---- is this even the right exercise? (pose-feature recognition over the last ~4 s)
+    if pose is not None or obs.person is False:
+        state["recog"] = (state.get("recog", []) + [features(pose)])[-WINDOW:]
+    seen, conf, evidence = recognize(state.get("recog", []))
+    trace[0]["recognized"] = {"exercise": seen, "confidence": round(conf, 2)}
+    if not compatible(state["exercise"], seen) and conf >= 0.5 and not state["pending_question"]:
+        state["wrong_frames"] = state.get("wrong_frames", 0) + 1
+    else:
+        state["wrong_frames"] = 0
+    if state["wrong_frames"] >= WRONG_FRAMES:
+        return _wrong_exercise(state, seen, evidence, t, actions, trace)
 
     faults = [f for f in obs.faults if not (state["variant"] == "knee" and f in KNEE_PLANK_IGNORES)]
     faults += _extra_faults(state, obs, t)
@@ -281,8 +298,23 @@ def apply_decision(state, tool, args, t, actions, trace):
 def answer(state: dict, choice: str, t: float) -> tuple[dict, list, list]:
     """The human's reply to an `ask` action."""
     state = deepcopy(state)
+    q_prev = state.get("pending_question")
     state["pending_question"] = None
     actions, trace = [], [{"event": "human", "t": round(t, 2), "choice": choice}]
+    if choice == "switch_exercise":
+        to = (q_prev or {}).get("switch_to")
+        if to:
+            state["exercise"], state["variant"] = to, "standard"
+            state["recog"], state["wrong_frames"], state["wrong_said"], state["recent"] = [], 0, 0, []
+            actions.append({"type": "switch_exercise", "to": to})
+            _say(actions, state, t, f"Okay, coaching {NAMES.get(to, to)} now.", "plan_change")
+            trace.append({"event": "act", "t": round(t, 2), "action": "switch_exercise", "args": {"to": to}})
+        return state, actions, trace
+    if choice == "keep_going" and q_prev and q_prev.get("switch_to"):
+        state["wrong_said"] = 0
+        state["recog"] = []
+        _say(actions, state, t, "Alright, let's keep going with this one.", "motivation")
+        return state, actions, trace
     if choice == "stop_set":
         state["stopped"] = None
     if choice == "keep_going" and state.get("stopped"):
@@ -348,6 +380,13 @@ def intent_of(text: str) -> str | None:
 def hear(state: dict, text: str, t: float) -> tuple[dict, list, list]:
     """Something the user said (speech-to-text in the browser). Same effect as a button, plus 'it hurts'."""
     intent = intent_of(text)
+    q = state.get("pending_question") or {}
+    if q.get("switch_to") and intent != "pain":       # "coach it as a plank?" -> yes / no
+        low = text.lower()
+        if any(w in low for w in ("yes", "switch", "sure", "okay", "ok ", "please", "oui", "change")):
+            intent = "switch_exercise"
+        elif any(w in low for w in ("no", "keep", "stay", "non")):
+            intent = "keep_going"
     trace = [{"event": "human", "t": round(t, 2), "heard": text, "intent": intent}]
     if intent is None:
         if state.get("pending_question"):
@@ -365,3 +404,29 @@ def hear(state: dict, text: str, t: float) -> tuple[dict, list, list]:
     state, actions, tr = answer(state, intent, t)
     actions.insert(0, {"type": "close_ask"})
     return state, actions, trace + tr[1:]
+
+
+def _wrong_exercise(state, seen, evidence, t, actions, trace):
+    """The camera shows a different exercise than planned: say so, then let the human decide."""
+    expected = state["exercise"]
+    state["wrong_frames"], state["awaiting_fix"] = 0, None
+    state["wrong_said"] = state.get("wrong_said", 0) + 1
+    trace.append({"event": "decide", "t": round(t, 2), "fault": "wrong_exercise", "decision": "wrong_exercise",
+                  "expected": expected, "seen": seen, "evidence": evidence, "decided_by": "rules"})
+    if state.get("mode") == "video" or state["wrong_said"] >= 2:
+        q = (f"This looks like {NAMES.get(seen, seen)}, not {NAMES.get(expected, expected)}. "
+             f"Should I coach it as {NAMES.get(seen, seen)}?")
+        state["pending_question"] = {"question": q, "options": ["switch_exercise", "keep_going"],
+                                     "asked_at": t, "switch_to": seen}
+        actions.append({"type": "ask", **{k: v for k, v in state["pending_question"].items() if k != "switch_to"}})
+        _say(actions, state, t, q, "question")
+    else:
+        floor_now, floor_planned = seen in ("plank", "bridge"), expected in ("plank", "bridge")
+        hint = (" Let's stand up for it." if floor_now and not floor_planned
+                else " Let's get down on the floor for it." if floor_planned and not floor_now else "")
+        _say(actions, state, t, pick([
+            f"That looks like {NAMES.get(seen, seen)}, but this one is {NAMES.get(expected, expected)}.{hint}",
+            f"Hmm, I see {NAMES.get(seen, seen)}. Right now we're doing {NAMES.get(expected, expected)}.{hint}",
+        ], state), "correction")
+    trace.append({"event": "act", "t": round(t, 2), "action": "flag_wrong_exercise", "args": {"seen": seen}})
+    return state, actions, trace

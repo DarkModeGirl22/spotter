@@ -42,6 +42,7 @@ def _log_trace(session: str, trace: list):
 class StartIn(BaseModel):
     exercise: str
     duration: int = 60
+    mode: str = "live"
 
 
 class FrameIn(BaseModel):
@@ -72,7 +73,7 @@ def health():
 
 @app.post("/api/start")
 def start(body: StartIn):
-    return {"state": coach.new_state(body.exercise, body.duration)}
+    return {"state": coach.new_state(body.exercise, body.duration, body.mode)}
 
 
 @app.post("/api/frame")
@@ -86,7 +87,7 @@ def frame(body: FrameIn):
         raise HTTPException(400, "bad image")
     pose = estimator().estimate(img)
     obs = analyze(body.state["exercise"], pose)
-    state, actions, trace = coach.step(body.state, obs, body.t)
+    state, actions, trace = coach.step(body.state, obs, body.t, pose)
     _log_trace(body.session, trace)
     return {
         "state": state, "actions": actions, "trace": trace, "obs": obs.to_json(),

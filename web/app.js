@@ -296,7 +296,7 @@ async function enterWork() {
   const ex = current();
   const v = $("video");
   const dur = plan.video ? Math.max(5, Math.ceil(v.duration || WORK)) : WORK;
-  const r = await post("api/start", { exercise: ex.id, duration: dur });
+  const r = await post("api/start", { exercise: ex.id, duration: dur, mode: plan.video ? "video" : "live" });
   state = r.state;
   $("exPhase").textContent = "GO";
   setPhase("work", dur);
@@ -386,6 +386,10 @@ function handle(actions, trace) {
     else if (a.type === "pause_timer") { frozen = phaseEnd - performance.now(); $("exPhase").textContent = `PAUSED · YOU HELD ${a.held}s`; stats.stops += 1; }
     else if (a.type === "resume_timer") { phaseEnd = performance.now() + (frozen || 0); frozen = null; $("exPhase").textContent = "GO"; }
     else if (a.type === "close_ask") { hideAsk(); }
+    else if (a.type === "switch_exercise") {          // the coach recognised another exercise and the user agreed
+      const item = Object.values(WORKOUTS).flatMap((w) => w.items).find((i) => i.id === a.to);
+      if (item) { plan.items[idx] = item; $("exName").textContent = item.name; coach.setMove(item.move); $("exPhase").textContent = "GO"; }
+    }
     else if (a.type === "end_set") { ending = true; frozen = null; setTimeout(endExercise, 1500); }
   }
 }
@@ -397,9 +401,10 @@ function showAsk(a) {
   $("ask").classList.toggle("soft", askSoft);
   $("askQ").textContent = a.question;
   const box = $("askBtns"); box.innerHTML = "";
+  const switching = a.options.includes("switch_exercise");
   for (const opt of a.options) {
     const b = document.createElement("button");
-    b.textContent = ASK_LABELS[opt] || opt;
+    b.textContent = switching ? (opt === "switch_exercise" ? "Yes, switch" : "No, keep this one") : (ASK_LABELS[opt] || opt);
     if (opt === "stop_set") b.className = "stop";
     b.onclick = () => answer(opt);
     box.appendChild(b);
