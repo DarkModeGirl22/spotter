@@ -196,6 +196,9 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
             return state, actions, trace
 
     # ---- new fault: quick spoken correction, then wait and re-check
+    # (once the user has started, "stopped" signs are handled by the pause logic above, not nagged)
+    if fault in STOP_SIGNS and state["active_time"] >= MIN_ACTIVE:
+        fault = None
     if fault and not waiting and t - state["last_cue_t"] >= CUE_COOLDOWN:
         state["cue_counts"][fault] = state["cue_counts"].get(fault, 0) + 1
         state["awaiting_fix"] = {"fault": fault, "cued_at": t, "failed": 0}

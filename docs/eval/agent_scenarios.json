@@ -55,7 +55,7 @@
    "scenario": "user stops after 20 s, comes back",
    "expected": "timer paused, 'you held 20 s', resumes by itself; paused time not counted",
    "passed": true,
-   "corrections": 1,
+   "corrections": 0,
    "plan_changes": 0,
    "questions": 1,
    "decided_by": [
@@ -66,7 +66,7 @@
    "scenario": "user stops, chooses 'rest'",
    "expected": "agent asks continue/rest; the human decides to rest",
    "passed": true,
-   "corrections": 1,
+   "corrections": 0,
    "plan_changes": 0,
    "questions": 1,
    "decided_by": [
@@ -77,7 +77,7 @@
    "scenario": "user stops, no answer, never comes back",
    "expected": "after 20 s paused, the set ends as rest (safe default)",
    "passed": true,
-   "corrections": 1,
+   "corrections": 0,
    "plan_changes": 0,
    "questions": 1,
    "decided_by": [
@@ -271,13 +271,6 @@
   "user stops after 20 s, comes back": [
    {
     "event": "decide",
-    "t": 20.4,
-    "fault": "no_person",
-    "decision": "cue_and_recheck",
-    "decided_by": "rules"
-   },
-   {
-    "event": "decide",
     "t": 21.2,
     "fault": "no_person",
     "decision": "pause_on_stop",
@@ -295,13 +288,6 @@
   "user stops, chooses 'rest'": [
    {
     "event": "decide",
-    "t": 20.4,
-    "fault": "no_person",
-    "decision": "cue_and_recheck",
-    "decided_by": "rules"
-   },
-   {
-    "event": "decide",
     "t": 21.2,
     "fault": "no_person",
     "decision": "pause_on_stop",
@@ -315,13 +301,6 @@
    }
   ],
   "user stops, no answer, never comes back": [
-   {
-    "event": "decide",
-    "t": 20.4,
-    "fault": "no_person",
-    "decision": "cue_and_recheck",
-    "decided_by": "rules"
-   },
    {
     "event": "decide",
     "t": 21.2,
