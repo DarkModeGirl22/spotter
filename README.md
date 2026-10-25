@@ -32,8 +32,10 @@ Most people train at home alone, following videos. A video can't see you: it can
 
 ## What the user experiences
 
-1. **Home:** *Practice live* (camera) or *Upload a video* (coaching on a recording).
-2. **Workout:** Lower body (squats, reverse lunges, glute bridge, side leg raises) or Upper body (plank, arm circles, overhead press, wall push-ups). 4 × 60 s, 30 s rest.
+**Spotter is made for practising live:** you train in front of your phone and the coach reacts to you in real time. *Upload a video* exists only so the loop can be demonstrated and tested on recorded footage (for judges, and for our own evaluation); the coaching logic is the same.
+
+1. **Home:** *Practice live* (camera, the real product) or *Upload a video* (demo and testing).
+2. **Workout:** Lower body (squats, reverse lunges, glute bridge, side leg raises) or Upper body (plank, arm circles, overhead press, wall push-ups). 4 × 60 s, 30 s rest. These 8 exercises are a starting set to show how the coach works; see [What's next](#whats-next).
 3. **Camera check before every move:** the coach waits while you set the phone down, then tells you what to fix ("Turn sideways to the phone", "It's too dark", "Turn the phone sideways for floor exercises"). The set starts only once she can actually judge the exercise.
 4. **During the set:** top half, the coach (an original animated character drawn in code) does the move and talks; bottom half, your camera with your skeleton, wrong joints in red.
 5. **You talk to her, like a real coach, at any moment:**
@@ -70,7 +72,21 @@ Most people train at home alone, following videos. A video can't see you: it can
 | **Active perception** | before each move, checks light, sharpness (`cv.Laplacian`), framing, distance and camera angle, and guides the user | `vision/setup_check.py` |
 | **Observability** | every event (perceive, decide, act, recheck, human, setup) goes to the in-app trace panel, the downloadable JSON trace and CloudWatch Logs | `server/app.py` |
 
-**OpenCV output changing a later decision:** same exercise, different actions depending only on what the camera sees. Hips back in line → praise. Hips still low → repeat, then plan change. Knees down repeatedly → switch to knee plank, after which `knees_down` stops counting as a fault. Person gone → pause and ask. See the [trace strip](docs/img/trace_strip.jpg).
+#### Evidence: the image changes what the coach does next
+
+The rules ask that *"the visual evidence must change what the system does next."* Here is a real replay ([`tools/replay_trace.py`](tools/replay_trace.py), full log in [docs/eval/replay_plank/trace.json](docs/eval/replay_plank/trace.json)): each frame is what OpenCV 5 saw, and the line under it is the action that frame caused.
+
+![OpenCV 5 output changes the next action](docs/img/trace_strip.jpg)
+
+| Time | Image → OpenCV 5 says | Agent decision | Coach does |
+|---|---|---|---|
+| 12.0 s | form OK | keep going | "You're strong, keep going!" |
+| 16.0 s | **hips_low** (red hip joint) | `cue_and_recheck` | "Lift your hips! Squeeze your belly." |
+| 20.8 s | new image: form OK | re-check → **fixed** | "Beautiful form!" |
+| 25.2 s | **hips_high** | `cue_and_recheck` | "Hips down a little. Flat back." |
+| 29.6 s | new image: form OK | re-check → **fixed** | "Perfect, hold it!" |
+
+Each correction is verified on the next images, not assumed. When the next images still show the fault, the decision changes instead: repeat the cue, then a plan change (knee plank, shorter set) or a question to the user. Knees down repeatedly → switch to knee plank, after which `knees_down` stops counting as a fault. Person gone → timer paused and a question. All of these paths are tested in [REPORT §6.2](docs/REPORT.md#62-agent-task-success-failure-handling-human-control).
 
 ### Technical execution: substantive OpenCV 5
 
@@ -165,6 +181,14 @@ We tested on real footage and on the phone after every change. Each failure beca
 | Coach repeated the same sentences | single phrase per cue | phrase lists, never the same line twice in a row |
 
 **Cloud path:** Bedrock model access stayed locked (use-case form), so the deterministic policy decides and Bedrock remains an option. CloudShell was blocked by account verification, so `deploy.sh` couldn't run there; we deployed the same zip through the Lambda console via S3. To avoid re-uploading on every change, the function now loads `server/`, `web/` and `models/` from this repo on each cold start (`SPOTTER_CODE_REPO`), falls back to the bundled code if GitHub is unreachable, and `/api/health` reports which code is live.
+
+## What's next
+
+The 8 exercises are a first set, chosen to show the full loop (form checks, corrections, plan changes, voice). The goal is a complete coach that covers everything a person needs to reach their goal:
+- many more exercises, each with its own form checks (not only plank and squat);
+- full programmes built around a goal (strength, mobility, weight loss, back health) that progress week after week;
+- the coach remembering your history: your usual faults, how long you can hold, when to make it harder;
+- more languages for the voice, and tests on many more people, bodies and rooms.
 
 ## Limitations
 
