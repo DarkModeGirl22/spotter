@@ -76,15 +76,25 @@ SCENARIOS = [
      lambda s, a, t: s["variant"] == "knee" and kinds(a, "correction")[-1]["text"] != coach.CUES["knees_down"]
      or (s["variant"] == "knee" and a.index(kinds(a, "plan_change")[0]) > a.index(kinds(a, "correction")[-1])),
      "switches to knee plank; knees on floor stop being a fault"),
-    ("user leaves the camera, answers 'stop'",
-     timeline((5, GOOD), (20, GONE)),
+    ("user stops after 20 s, comes back",
+     timeline((20, GOOD), (5, GONE), (20, GOOD)),
+     lambda s, a, t: any(e["event"] == "decide" and e["decision"] == "pause_on_stop" for e in t)
+     and any(e["event"] == "recheck" and e["result"] == "resumed" for e in t)
+     and any(x["type"] == "pause_timer" and 18 <= x["held"] <= 21 for x in a) and s["end_at"] > 60,
+     "timer paused, 'you held 20 s', resumes by itself; paused time not counted"),
+    ("user stops, chooses 'rest'",
+     timeline((20, GOOD), (10, GONE)),
      lambda s, a, t: any(e["event"] == "human" and e["choice"] == "stop_set" for e in t)
      and any(x["type"] == "end_set" for x in a),
-     "agent asks; the human decides to stop"),
-    ("user leaves the camera, no answer",
-     timeline((5, GOOD), (40, GONE)),
-     lambda s, a, t: any(x["type"] == "end_set" and x["reason"] == "no_answer_timeout" for x in a),
-     "unanswered question -> safe pause after 10 s"),
+     "agent asks continue/rest; the human decides to rest"),
+    ("user stops, no answer, never comes back",
+     timeline((20, GOOD), (40, GONE)),
+     lambda s, a, t: any(x["type"] == "end_set" and x["reason"] == "rested" for x in a),
+     "after 20 s paused, the set ends as rest (safe default)"),
+    ("question unanswered while still exercising",
+     timeline((5, GOOD), (40, LOW)),
+     lambda s, a, t: any(x["type"] == "ask" for x in a) or s["end_at"] < 60 or s["variant"] == "knee",
+     "escalation never blocks: plan change or question"),
 ]
 
 
@@ -96,7 +106,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     rows, traces = [], {}
     for name, frames, check, expect in SCENARIOS:
-        answer_at = 13.0 if "answers 'stop'" in name else None
+        answer_at = 25.0 if "chooses 'rest'" in name else None
         s, a, t = run("plank", frames, answer_at, "stop_set")
         ok = bool(check(s, a, t))
         rows.append({"scenario": name, "expected": expect, "passed": ok,

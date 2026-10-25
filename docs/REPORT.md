@@ -69,6 +69,7 @@ Thresholds are normalized by body length, so they don't depend on distance to th
 | Re-check | The next frames decide: **fixed** (praise), **replaced by another fault** (no praise, handle the new one), or **not fixed** after 5 s (repeat the cue once) | `coach.step` |
 | Decide | Second failed cue → Amazon Bedrock picks one tool: `switch_variant`, `shorten_set`, `ask_user` or `say`. If Bedrock is unreachable, a deterministic policy picks the same kinds of action | `brain.decide` |
 | Human control | `ask_user` shows buttons (keep going / easier / stop). No answer in 10 s → safe default: pause the set | `coach.answer` |
+| Stop detection | The user stops (drops out of position, stands up, leaves the frame, stops moving) for about 1.2 s → **the timer pauses at once**, the coach says "You held 14 seconds. That's already good!" and offers *I'll continue / Rest now*. The camera keeps watching: back in position → timer resumes by itself ("You're back!"), with paused time not counted. Gone for 20 s → the set ends as rest | `coach._while_stopped` |
 
 **Active perception: camera check before every exercise.** In live mode the set does not start on a timer. Every 0.6 s the agent checks, with OpenCV, whether it *can* judge this exercise from where the phone is:
 - light (mean grey level);
@@ -119,7 +120,7 @@ Pose latency (person detector + pose model, CPU, one core of the development con
 
 ### 6.2 Agent: task success, failure handling, human control
 
-`python -m tools.eval_agent` runs the real agent loop on 7 scripted observation timelines plus a Bedrock-outage test (`docs/eval/agent_scenarios.md`):
+`python -m tools.eval_agent` runs the real agent loop on 9 scripted observation timelines plus a Bedrock-outage test (`docs/eval/agent_scenarios.md`):
 
 | Scenario | Expected behaviour | Pass | Corrections | Plan changes | Questions |
 |---|---|---|---|---|---|
@@ -128,8 +129,10 @@ Pose latency (person detector + pose model, CPU, one core of the development con
 | hips sag, user fixes after cue | cue spoken, re-check confirms the fix, praise | ✅ | 1 | 0 | 0 |
 | hips sag, user never fixes | cue, repeat, then the agent changes the plan | ✅ | 4 | 2 | 0 |
 | knees drop repeatedly | switches to knee plank; knees on floor stop being a fault | ✅ | 2 | 1 | 0 |
-| user leaves the camera, answers "stop" | agent asks; the human decides to stop | ✅ | 1 | 0 | 1 |
-| user leaves the camera, no answer | unanswered question → safe pause after 10 s | ✅ | 1 | 0 | 1 |
+| user stops after 20 s, comes back | timer paused, 'you held 20 s', resumes by itself; paused time not counted | ✅ | 1 | 0 | 1 |
+| user stops, chooses 'rest' | agent asks continue/rest; the human decides to rest | ✅ | 1 | 0 | 1 |
+| user stops, no answer, never comes back | after 20 s paused, the set ends as rest (safe default) | ✅ | 1 | 0 | 1 |
+| question unanswered while still exercising | escalation never blocks: plan change or question | ✅ | 6 | 2 | 0 |
 | Bedrock unavailable | fallback policy decides, no crash | ✅ | - | - | - |
 
 Plus 8 unit tests on synthetic keypoints (`pytest`).

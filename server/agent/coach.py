@@ -33,6 +33,12 @@ CUE_COOLDOWN = 4.0     # seconds between two cues
 FIX_WINDOW = 5.0       # seconds the user gets to fix a fault before the agent escalates
 ESCALATE_AFTER = 2     # escalate when the same fault needs a 2nd failed cue
 ASK_TIMEOUT = 10.0     # unanswered question -> safest choice (pause the set)
+STOP_FRAMES = 3        # ~1.2 s of "not exercising" frames = the user stopped
+MIN_ACTIVE = 3.0       # only after the user has really started
+RESUME_FRAMES = 2      # back in position for 2 frames = resume
+REST_AFTER = 20.0      # stopped this long without coming back = rest, end the set
+STOP_SIGNS = {"not_in_plank_position", "collapsed", "no_person", "not_moving", "body_not_visible",
+              "legs_not_visible"}
 
 
 def new_state(exercise: str, duration: int = 60) -> dict:
@@ -42,6 +48,8 @@ def new_state(exercise: str, duration: int = 60) -> dict:
         "good_since": None, "milestones": [], "pending_question": None, "paused": False,
         "squat": {"phase": "up", "min_knee": 180.0, "reps": 0},
         "activity": {"last": None, "still_since": None}, "step": 0,
+        # stop detection: time actually spent working, consecutive "stopped" frames, open pause
+        "active_time": 0.0, "last_t": None, "stop_frames": 0, "stopped": None,
     }
 
 
@@ -70,6 +78,28 @@ def step(state: dict, obs: Observation, t: float) -> tuple[dict, list, list]:
     faults = [f for f in obs.faults if not (state["variant"] == "knee" and f in KNEE_PLANK_IGNORES)]
     faults += _extra_faults(state, obs, t)
     state["recent"] = (state["recent"] + [faults])[-5:]
+
+    # ---- did the user stop? pause the timer at once, say how long they held, let them choose
+    stopping = bool(set(faults) & STOP_SIGNS)
+    if state["last_t"] is not None and not state["stopped"] and not stopping:
+        state["active_time"] += t - state["last_t"]
+    state["last_t"] = t
+    state["stop_frames"] = state["stop_frames"] + 1 if stopping else 0
+    if state["stopped"]:
+        return _while_stopped(state, stopping, t, actions, trace)
+    if state["stop_frames"] >= STOP_FRAMES and state["active_time"] >= MIN_ACTIVE and not state["pending_question"]:
+        held = int(round(state["active_time"]))
+        state["stopped"] = {"at": t, "held": held, "back_frames": 0}
+        state["awaiting_fix"] = None
+        actions.append({"type": "pause_timer", "held": held})
+        _say(actions, state, t, f"You held {held} seconds. That's already good! "
+             "If you can, get back in position and I'll restart the clock. If not, take a rest.", "question")
+        state["pending_question"] = {"question": f"You held {held} s. Continue or rest?",
+                                     "options": ["keep_going", "stop_set"], "asked_at": t, "soft": True}
+        actions.append({"type": "ask", **state["pending_question"]})
+        trace.append({"event": "decide", "t": round(t, 2), "fault": sorted(set(faults) & STOP_SIGNS)[0],
+                      "decision": "pause_on_stop", "held_s": held, "decided_by": "rules"})
+        return state, actions, trace
 
     # ---- human in the loop: a question is open
     q = state["pending_question"]
@@ -213,6 +243,11 @@ def answer(state: dict, choice: str, t: float) -> tuple[dict, list, list]:
     state["pending_question"] = None
     actions, trace = [], [{"event": "human", "t": round(t, 2), "choice": choice}]
     if choice == "stop_set":
+        state["stopped"] = None
+    if choice == "keep_going" and state.get("stopped"):
+        _say(actions, state, t, "Great! Get back in position, the clock starts when I see you.", "motivation")
+        return state, actions, trace
+    if choice == "stop_set":
         actions.append({"type": "end_set", "reason": "user_stopped"})
         _say(actions, state, t, "Good call. Rest now, you did great.", "safety")
     elif choice == "easier_version" and state["exercise"] == "plank":
@@ -223,4 +258,26 @@ def answer(state: dict, choice: str, t: float) -> tuple[dict, list, list]:
                        t, actions, trace)
     else:
         _say(actions, state, t, "Let's go! Stay strong!", "motivation")
+    return state, actions, trace
+
+
+def _while_stopped(state, stopping, t, actions, trace):
+    """Timer is paused. Resume by itself when the camera sees the user back in position."""
+    st = state["stopped"]
+    st["back_frames"] = 0 if stopping else st["back_frames"] + 1
+    if st["back_frames"] >= RESUME_FRAMES:
+        pause = t - st["at"]
+        state["end_at"] += pause                      # the paused time does not count
+        state["stopped"], state["stop_frames"], state["recent"] = None, 0, []
+        state["pending_question"] = None
+        actions.append({"type": "resume_timer", "end_at": state["end_at"]})
+        actions.append({"type": "close_ask"})
+        _say(actions, state, t, "You're back! The clock is running again. Let's go!", "motivation")
+        trace.append({"event": "recheck", "t": round(t, 2), "fault": "stopped", "result": "resumed",
+                      "paused_s": round(pause, 1)})
+    elif t - st["at"] > REST_AFTER:
+        state["stopped"], state["pending_question"] = None, None
+        actions.append({"type": "end_set", "reason": "rested"})
+        _say(actions, state, t, f"Good job, {st['held']} seconds. Take your rest.", "safety")
+        trace.append({"event": "act", "t": round(t, 2), "action": "end_set", "why": "user did not come back"})
     return state, actions, trace

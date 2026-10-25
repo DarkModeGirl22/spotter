@@ -16,7 +16,7 @@ const WORKOUTS = {
   ] },
 };
 const WORK = 60, REST = 30, PREP = 6, FRAME_MS = 400;
-const ASK_LABELS = { keep_going: "Keep going", easier_version: "Easier version", stop_set: "Stop this exercise" };
+const ASK_LABELS = { keep_going: "I'll continue", easier_version: "Easier version", stop_set: "Rest now" };
 const FAULT_LABELS = {
   hips_low: "HIPS LOW", hips_high: "HIPS HIGH", knees_down: "KNEES DOWN", collapsed: "COLLAPSED",
   not_in_plank_position: "GET IN POSITION", body_not_visible: "MOVE BACK", legs_not_visible: "MOVE BACK",
@@ -112,7 +112,8 @@ async function speak(text, kind = "") {
 // ---------- workout flow
 async function start(key) {
   plan = typeof key === "string" ? WORKOUTS[key] : key;
-  stats = { corrections: 0, fixed: 0, fixTimes: [], planChanges: 0, questions: 0, frames: 0, latency: [] };
+  frozen = null;
+  stats = { stops: 0, corrections: 0, fixed: 0, fixTimes: [], planChanges: 0, questions: 0, frames: 0, latency: [] };
   traceLog = [];
   $("home").hidden = true; $("workout").hidden = false; $("done").hidden = true;
   if (!coach) coach = new window.Coach($("coachCanvas"));
@@ -271,12 +272,18 @@ function handle(actions, trace) {
     else if (a.type === "switch_variant") { coach.setMove(a.variant === "knee" ? "kneeplank" : current().move); $("exPhase").textContent = "EASIER VERSION"; }
     else if (a.type === "shorten_set") { phaseEnd = workStart + a.end_at * 1000; }
     else if (a.type === "ask") { stats.questions += 1; showAsk(a); }
+    else if (a.type === "pause_timer") { frozen = phaseEnd - performance.now(); $("exPhase").textContent = `PAUSED · YOU HELD ${a.held}s`; stats.stops += 1; }
+    else if (a.type === "resume_timer") { phaseEnd = performance.now() + (frozen || 0); frozen = null; $("exPhase").textContent = "GO"; }
+    else if (a.type === "close_ask") { hideAsk(); }
     else if (a.type === "end_set") { setTimeout(endExercise, 1500); }
   }
 }
 
 // ---------- human in the loop
+let frozen = null, askSoft = false;
 function showAsk(a) {
+  askSoft = !!a.soft;
+  $("ask").classList.toggle("soft", askSoft);
   $("askQ").textContent = a.question;
   const box = $("askBtns"); box.innerHTML = "";
   for (const opt of a.options) {
@@ -288,7 +295,7 @@ function showAsk(a) {
   }
   $("ask").hidden = false;
 }
-function hideAsk() { $("ask").hidden = true; }
+function hideAsk() { $("ask").hidden = true; askSoft = false; }
 async function answer(choice) {
   hideAsk();
   const t = (performance.now() - workStart) / 1000;
@@ -375,6 +382,7 @@ function tick() {
     if (phase === "setup" && performance.now() - lastFrame > 600 && !inflight) { lastFrame = performance.now(); sendSetupFrame(); }
     return;
   }
+  if (frozen !== null && phase === "work") phaseEnd = performance.now() + frozen;   // timer stopped
   const left = Math.max(0, (phaseEnd - performance.now()) / 1000);
   const shown = Math.ceil(left);
   $("timer").textContent = `${Math.floor(shown / 60)}:${String(shown % 60).padStart(2, "0")}`;
@@ -386,7 +394,8 @@ function tick() {
     if (phase === "work") return endExercise();
     if (phase === "rest") return nextAfterRest();
   }
-  if (phase === "work" && !inflight && $("ask").hidden && performance.now() - lastFrame > FRAME_MS) {
+  // keep watching during a "soft" question (user stopped): the camera can see them come back
+  if (phase === "work" && !inflight && ($("ask").hidden || askSoft) && performance.now() - lastFrame > FRAME_MS) {
     lastFrame = performance.now();
     sendFrame();
   }

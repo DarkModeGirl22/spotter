@@ -151,3 +151,8 @@ button { font-family: var(--head); cursor: pointer; }
 
 @media (min-width: 561px) { body { padding: 0; } .screen { box-shadow: 0 0 40px rgba(0,0,0,.06); } }
 .field input[type=file]::file-selector-button { font: 800 12px var(--head); letter-spacing: .08em; text-transform: uppercase; background: var(--ink); color: #fff; border: 0; height: 36px; padding: 0 14px; margin-right: 12px; cursor: pointer; }
+/* soft question (user stopped): keep the camera visible so the coach can see them come back */
+.ask.soft { background: transparent; align-items: flex-end; padding: 10px; pointer-events: none; }
+.ask.soft .ask-card { pointer-events: auto; padding: 14px; }
+.ask.soft .ask-q { font-size: 16px; margin-bottom: 10px; }
+.ask.soft .ask-btns { grid-template-columns: 1fr 1fr; }

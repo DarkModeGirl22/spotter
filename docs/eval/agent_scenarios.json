@@ -52,8 +52,8 @@
    ]
   },
   {
-   "scenario": "user leaves the camera, answers 'stop'",
-   "expected": "agent asks; the human decides to stop",
+   "scenario": "user stops after 20 s, comes back",
+   "expected": "timer paused, 'you held 20 s', resumes by itself; paused time not counted",
    "passed": true,
    "corrections": 1,
    "plan_changes": 0,
@@ -63,12 +63,34 @@
    ]
   },
   {
-   "scenario": "user leaves the camera, no answer",
-   "expected": "unanswered question -> safe pause after 10 s",
+   "scenario": "user stops, chooses 'rest'",
+   "expected": "agent asks continue/rest; the human decides to rest",
    "passed": true,
    "corrections": 1,
    "plan_changes": 0,
    "questions": 1,
+   "decided_by": [
+    "rules"
+   ]
+  },
+  {
+   "scenario": "user stops, no answer, never comes back",
+   "expected": "after 20 s paused, the set ends as rest (safe default)",
+   "passed": true,
+   "corrections": 1,
+   "plan_changes": 0,
+   "questions": 1,
+   "decided_by": [
+    "rules"
+   ]
+  },
+  {
+   "scenario": "question unanswered while still exercising",
+   "expected": "escalation never blocks: plan change or question",
+   "passed": true,
+   "corrections": 6,
+   "plan_changes": 2,
+   "questions": 0,
    "decided_by": [
     "rules"
    ]
@@ -246,99 +268,186 @@
     }
    }
   ],
-  "user leaves the camera, answers 'stop'": [
+  "user stops after 20 s, comes back": [
    {
     "event": "decide",
-    "t": 5.2,
+    "t": 20.4,
     "fault": "no_person",
     "decision": "cue_and_recheck",
     "decided_by": "rules"
    },
    {
-    "event": "recheck",
-    "t": 10.4,
+    "event": "decide",
+    "t": 20.8,
     "fault": "no_person",
-    "result": "not_fixed"
+    "decision": "pause_on_stop",
+    "held_s": 20,
+    "decided_by": "rules"
+   },
+   {
+    "event": "recheck",
+    "t": 25.2,
+    "fault": "stopped",
+    "result": "resumed",
+    "paused_s": 4.4
+   }
+  ],
+  "user stops, chooses 'rest'": [
+   {
+    "event": "decide",
+    "t": 20.4,
+    "fault": "no_person",
+    "decision": "cue_and_recheck",
+    "decided_by": "rules"
    },
    {
     "event": "decide",
-    "t": 10.4,
+    "t": 20.8,
     "fault": "no_person",
-    "decision": "ask_user",
-    "input": {
-     "question": "I lost you. Are you okay? Keep going or stop?",
-     "options": [
-      "keep_going",
-      "stop_set"
-     ]
-    },
-    "decided_by": "rules",
-    "latency_ms": 0
-   },
-   {
-    "event": "act",
-    "t": 10.4,
-    "action": "ask_user",
-    "args": {
-     "question": "I lost you. Are you okay? Keep going or stop?",
-     "options": [
-      "keep_going",
-      "stop_set"
-     ]
-    }
+    "decision": "pause_on_stop",
+    "held_s": 20,
+    "decided_by": "rules"
    },
    {
     "event": "human",
-    "t": 13.2,
+    "t": 25.2,
     "choice": "stop_set"
    }
   ],
-  "user leaves the camera, no answer": [
+  "user stops, no answer, never comes back": [
+   {
+    "event": "decide",
+    "t": 20.4,
+    "fault": "no_person",
+    "decision": "cue_and_recheck",
+    "decided_by": "rules"
+   },
+   {
+    "event": "decide",
+    "t": 20.8,
+    "fault": "no_person",
+    "decision": "pause_on_stop",
+    "held_s": 20,
+    "decided_by": "rules"
+   },
+   {
+    "event": "act",
+    "t": 41.2,
+    "action": "end_set",
+    "why": "user did not come back"
+   }
+  ],
+  "question unanswered while still exercising": [
    {
     "event": "decide",
     "t": 5.2,
-    "fault": "no_person",
+    "fault": "hips_low",
     "decision": "cue_and_recheck",
     "decided_by": "rules"
    },
    {
     "event": "recheck",
     "t": 10.4,
-    "fault": "no_person",
+    "fault": "hips_low",
+    "result": "not_fixed"
+   },
+   {
+    "event": "act",
+    "t": 10.4,
+    "action": "say",
+    "why": "repeat cue"
+   },
+   {
+    "event": "recheck",
+    "t": 15.6,
+    "fault": "hips_low",
     "result": "not_fixed"
    },
    {
     "event": "decide",
-    "t": 10.4,
-    "fault": "no_person",
-    "decision": "ask_user",
+    "t": 15.6,
+    "fault": "hips_low",
+    "decision": "switch_variant",
     "input": {
-     "question": "I lost you. Are you okay? Keep going or stop?",
-     "options": [
-      "keep_going",
-      "stop_set"
-     ]
+     "variant": "knee",
+     "text": "Let's switch to knee plank. Knees down, back straight!"
     },
     "decided_by": "rules",
     "latency_ms": 0
    },
    {
     "event": "act",
-    "t": 10.4,
-    "action": "ask_user",
+    "t": 15.6,
+    "action": "switch_variant",
     "args": {
-     "question": "I lost you. Are you okay? Keep going or stop?",
-     "options": [
-      "keep_going",
-      "stop_set"
-     ]
+     "variant": "knee",
+     "text": "Let's switch to knee plank. Knees down, back straight!"
     }
    },
    {
+    "event": "decide",
+    "t": 20.0,
+    "fault": "hips_low",
+    "decision": "cue_and_recheck",
+    "decided_by": "rules"
+   },
+   {
+    "event": "recheck",
+    "t": 25.2,
+    "fault": "hips_low",
+    "result": "not_fixed"
+   },
+   {
     "event": "act",
-    "t": 20.8,
-    "action": "end_set",
-    "why": "question timed out"
+    "t": 25.2,
+    "action": "say",
+    "why": "repeat cue"
+   },
+   {
+    "event": "recheck",
+    "t": 30.4,
+    "fault": "hips_low",
+    "result": "not_fixed"
+   },
+   {
+    "event": "decide",
+    "t": 30.4,
+    "fault": "hips_low",
+    "decision": "shorten_set",
+    "input": {
+     "seconds": 10,
+     "text": "Ten more seconds, then we rest!"
+    },
+    "decided_by": "rules",
+    "latency_ms": 0
+   },
+   {
+    "event": "act",
+    "t": 30.4,
+    "action": "shorten_set",
+    "args": {
+     "seconds": 10,
+     "text": "Ten more seconds, then we rest!"
+    }
+   },
+   {
+    "event": "decide",
+    "t": 35.2,
+    "fault": "hips_low",
+    "decision": "cue_and_recheck",
+    "decided_by": "rules"
+   },
+   {
+    "event": "recheck",
+    "t": 40.4,
+    "fault": "hips_low",
+    "result": "not_fixed"
+   },
+   {
+    "event": "act",
+    "t": 40.4,
+    "action": "say",
+    "why": "repeat cue"
    }
   ]
  }
