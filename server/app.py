@@ -66,7 +66,8 @@ class AnswerIn(BaseModel):
 
 @app.get("/api/health")
 def health():
-    return {"opencv": cv.__version__, "bedrock_model": brain.MODEL_ID or None, "polly": voice.ENABLED}
+    return {"opencv": cv.__version__, "bedrock_model": brain.MODEL_ID or None, "polly": voice.ENABLED,
+            "code": os.environ.get("SPOTTER_CODE_SOURCE", "local")}
 
 
 @app.post("/api/start")
