@@ -111,23 +111,45 @@ function closeSource() {
 }
 
 // ---------- voice: Amazon Polly through /api/voice, browser speech as fallback
-let audio = null;
+// Phones only let a page play sound that starts from a tap. So: ONE audio element, unlocked by the
+// user's first tap (Practice live / Start workout / Start coaching) and reused for every line after.
+const voiceEl = new Audio();
+voiceEl.setAttribute("playsinline", "");
+const SILENCE = "data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YSADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";   // 50 ms of silence
+let audioUnlocked = false, pendingLine = null;
+function unlockAudio() {
+  try {
+    voiceEl.src = SILENCE;
+    const p = voiceEl.play();
+    if (p) p.then(() => { audioUnlocked = true; $("soundBtn").hidden = true; }).catch(() => {});
+  } catch (_) {}
+  try {                                   // also wakes up the phone's built-in speech engine
+    if (window.speechSynthesis) { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); }
+  } catch (_) {}
+}
+document.addEventListener("click", () => { if (!audioUnlocked) unlockAudio(); }, true);
+
 let speakingUntil = 0, stateVersion = 0;   // ignore the microphone while the coach is talking (it would hear itself)
 async function speak(text, kind = "") {
   speakingUntil = performance.now() + 900 + text.length * 70;
   const sub = $("subtitle");
   sub.textContent = text;
   sub.className = "subtitle" + (kind === "correction" || kind === "question" ? " correction" : "");
+  try { voiceEl.pause(); } catch (_) {}
+  try { window.speechSynthesis && speechSynthesis.cancel(); } catch (_) {}
   try {
-    if (audio) { audio.pause(); audio = null; }
-    window.speechSynthesis && speechSynthesis.cancel();
     const r = await fetch("api/voice?text=" + encodeURIComponent(text));
     if (r.status === 200) {
-      audio = new Audio(URL.createObjectURL(await r.blob()));
-      await audio.play();
+      voiceEl.src = URL.createObjectURL(await r.blob());
+      await voiceEl.play();
+      audioUnlocked = true;
       return;
     }
-  } catch (_) { /* fall through */ }
+  } catch (e) {
+    if (e && e.name === "NotAllowedError") {          // the phone blocked the sound: ask for one tap
+      pendingLine = text; $("soundBtn").hidden = false; return;
+    }
+  }
   if (window.speechSynthesis) {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "en-US"; u.rate = 1.05;
@@ -439,6 +461,10 @@ $("btnTrace").onclick = () => { $("trace").hidden = !$("trace").hidden; };
 $("btnTraceX").onclick = () => { $("trace").hidden = true; };
 $("btnTraceDl").onclick = downloadTrace;
 $("btnDl").onclick = downloadTrace;
+$("soundBtn").onclick = () => {
+  unlockAudio(); $("soundBtn").hidden = true;
+  if (pendingLine) { const t = pendingLine; pendingLine = null; setTimeout(() => speak(t), 150); }
+};
 $("btnHome").onclick = () => { phase = null; location.hash = "#/"; showPage(); };
 
 async function post(url, body) {
