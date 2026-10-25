@@ -136,7 +136,7 @@ Pose latency (person detector + pose model, CPU, one core of the development con
 | question unanswered while still exercising | escalation never blocks: plan change or question | ✅ | 6 | 2 | 0 |
 | Bedrock unavailable | fallback policy decides, no crash | ✅ | - | - | - |
 
-Plus 11 unit tests (`pytest`).
+Plus 13 unit tests (`pytest`).
 
 ### 6.3 Robustness: the same frames under real capture conditions
 
@@ -193,8 +193,8 @@ Limits: glute bridge, leg raises, arm circles, press and wall push-up signatures
 | 6 | robustness, far away | Small person → garbage keypoints (64 %) | Pose crop from a few pixels | When the body is small, zoom on it (crop + `cv.resize`) and detect again (→ 81 %) |
 | 7 | robustness, dark room | Person lost in 16 % of frames | Low contrast | CLAHE on the LAB lightness channel when the frame is dark (→ 7 %) |
 | 8 | robustness, blur | Misplaced ankle made a flat body look tilted, so "not in position" | One bad keypoint bends the body line | Average both body sides when they agree; fall back to shoulder→knee line when the ankle disagrees with the torso |
-| 10 | user test on the phone | Saying "pause" or "end" did nothing; the coach could only answer its own questions | Only 4 voice intents, and the mic was only used during the set | Voice commands and questions at any time, with whole-word matching (`coach.hear`); tests `test_voice_commands_work_any_time`, `test_am_i_doing_it_right_uses_what_the_camera_sees` |
 | 9 | robustness, compression | Good form flagged hips_high at −0.09 | Threshold inside the noise band | Pike threshold −0.12 (real pikes measure −0.26 to −0.33), sag threshold 0.06 |
+| 10 | user test on the phone | Saying "pause" or "end" did nothing; the coach could only answer its own questions | Only 4 voice intents, and the mic was only used during the set | Voice commands and questions at any time, with whole-word matching (`coach.hear`); tests `test_voice_commands_work_any_time`, `test_am_i_doing_it_right_uses_what_the_camera_sees` |
 
 Every fix is covered by a test (`tests/`) or measured by an evaluation script.
 
@@ -206,7 +206,7 @@ Every fix is covered by a test (`tests/`) or measured by an evaluation script.
 - **Depth.** A 2D camera cannot see twisting toward or away from the camera.
 - **Form checks today:** plank (4 faults) and squat (2). The other six moves only check that the user keeps moving.
 - **Network.** Feedback arrives after one round trip; cues are not frame-instant.
-- **Voice understanding** is keyword-based (English, plus basic French) on top of the browser's speech recognition (Chrome/Edge/Safari). Unclear phrases get "Sorry, say continue or rest."
+- **Voice understanding** is keyword-based (English, plus basic French) on top of the browser's speech recognition (Chrome/Edge/Safari). Unclear questions get a short list of what she can answer.
 - **Live camera:** the demo uses the presenter's own recorded and live attempts. Smart glasses (Meta's Wearables Device Access Toolkit gives camera access) are future work. A first-person view cannot see the body, so they would suit other exercises.
 
 ## 7. AWS deployment
