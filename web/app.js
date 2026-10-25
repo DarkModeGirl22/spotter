@@ -81,8 +81,12 @@ for (const w of Object.values(WORKOUTS)) for (const it of w.items) {
 }
 $("exSelect").value = "plank";
 $("fileInput").onchange = (e) => { sourceFile = e.target.files[0] || null; $("btnAnalyze").disabled = !sourceFile; };
-$("btnAnalyze").onclick = () => {
+$("btnAnalyze").onclick = async () => {
   const ex = Object.values(WORKOUTS).flatMap((w) => w.items).find((i) => i.id === $("exSelect").value);
+  try {   // ask for the microphone now, so you can answer the coach out loud
+    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+    s.getTracks().forEach((t) => t.stop());
+  } catch (_) { /* no mic: the buttons still work */ }
   start({ name: "Video: " + ex.name, items: [ex], video: true });
 };
 
@@ -166,7 +170,7 @@ async function speak(text, kind = "") {
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null, listening = false;
 function startListening() {
-  if (!SR || listening || plan.video) return;
+  if (!SR || listening) return;
   try {
     rec = new SR();
     rec.lang = "en-US"; rec.continuous = true; rec.interimResults = false;
@@ -402,6 +406,9 @@ function showAsk(a) {
   $("askQ").textContent = a.question;
   const box = $("askBtns"); box.innerHTML = "";
   const switching = a.options.includes("switch_exercise");
+  $("askHint").textContent = !listening ? "Tap your answer:"
+    : switching ? "Just say “yes” or “no”, or tap:"
+    : "Just say it: “continue”, “easier” or “rest”, or tap:";
   for (const opt of a.options) {
     const b = document.createElement("button");
     b.textContent = switching ? (opt === "switch_exercise" ? "Yes, switch" : "No, keep this one") : (ASK_LABELS[opt] || opt);
