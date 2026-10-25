@@ -166,3 +166,5 @@ button { font-family: var(--head); cursor: pointer; }
 .back:hover { color: var(--red); }
 .topbar .back + .brand { margin-right: auto; margin-left: 8px; }
 .hero-small h1 { font-size: 30px; }
+.steps { margin: 18px 0 20px; padding-left: 20px; font: 400 15px/1.6 var(--body); }
+.steps li { margin-bottom: 8px; }

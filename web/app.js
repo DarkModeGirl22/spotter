@@ -43,16 +43,35 @@ function renderHome() {
   }
 }
 // ---------- pages: #/ (home), #/live, #/video. The browser / phone back button works.
-const PAGES = { "": "home", live: "livePage", video: "videoPage" };
+const PAGES = { "": "home", live: "livePage", video: "videoPage", camera: "camPage" };
 function showPage() {
   if (phase && phase !== "done") return;           // never leave a running workout by accident
   const key = location.hash.replace(/^#\/?/, "");
   const id = PAGES[key] || "home";
-  for (const p of ["home", "livePage", "videoPage", "workout", "done"]) $(p).hidden = p !== id;
+  for (const p of ["home", "livePage", "videoPage", "camPage", "workout", "done"]) $(p).hidden = p !== id;
   window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", showPage);
-$("modeLive").onclick = () => { sourceFile = null; location.hash = "#/live"; };
+// ask for camera + mic right away: the workout list only shows once the coach can see and hear you
+async function askCamera() {
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("unsupported");
+    const s = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .catch(() => navigator.mediaDevices.getUserMedia({ video: true }));     // mic refused: still go
+    s.getTracks().forEach((t) => t.stop());
+    return true;
+  } catch (e) {
+    $("camWhy").textContent = e && e.name === "NotAllowedError"
+      ? "Camera access was blocked. Your coach needs it to watch your form."
+      : "This browser window can't open the camera. Your coach needs it to watch your form.";
+    return false;
+  }
+}
+$("modeLive").onclick = async () => {
+  sourceFile = null;
+  location.hash = (await askCamera()) ? "#/live" : "#/camera";
+};
+$("btnCamRetry").onclick = async () => { if (await askCamera()) location.hash = "#/live"; };
 $("modeVideo").onclick = () => { location.hash = "#/video"; };
 document.querySelectorAll("[data-back]").forEach((b) => { b.onclick = () => history.back(); });
 for (const w of Object.values(WORKOUTS)) for (const it of w.items) {
@@ -157,11 +176,14 @@ async function start(key) {
   frozen = null;
   stats = { stops: 0, corrections: 0, fixed: 0, fixTimes: [], planChanges: 0, questions: 0, frames: 0, latency: [] };
   traceLog = [];
-  for (const p of ["home", "livePage", "videoPage", "done"]) $(p).hidden = true;
+  for (const p of ["home", "livePage", "videoPage", "camPage", "done"]) $(p).hidden = true;
   $("workout").hidden = false;
   if (!coach) coach = new window.Coach($("coachCanvas"));
   try { await openSource(); } catch (e) {
-    alert("Camera not available: " + e.message); return finish();
+    // no camera: explain how to fix it instead of showing an empty summary
+    phase = null; $("workout").hidden = true;
+    location.hash = "#/camera"; showPage();
+    return;
   }
   idx = 0;
   enterPrep();
@@ -265,7 +287,13 @@ function endExercise() {
 function nextAfterRest() { idx += 1; enterPrep(); }
 
 function finish() {
-  phase = "done"; closeSource(); hideAsk(); stopListening();
+  closeSource(); hideAsk(); stopListening();
+  if (!stats || stats.frames === 0) {          // nothing was done: no empty summary, back to the list
+    phase = null; $("workout").hidden = true; $("trace").hidden = true;
+    location.hash = sourceFile ? "#/video" : "#/live"; showPage();
+    return;
+  }
+  phase = "done";
   $("workout").hidden = true; $("done").hidden = false; $("trace").hidden = true;
   const avg = (a) => (a.length ? (a.reduce((x, y) => x + y, 0) / a.length) : 0);
   const rows = [
