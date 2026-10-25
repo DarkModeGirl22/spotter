@@ -209,6 +209,8 @@ Measured on the deployed function from a laptop in Lille, one 480×360 JPEG per 
 
 So a frame every 0.4 s leaves plenty of margin.
 
+**Updating without re-uploading:** the zip carries the heavy dependencies (OpenCV 5, NumPy, FastAPI). With `SPOTTER_CODE_REPO=DarkModeGirl22/spotter@main`, each cold start downloads the repo's `server/`, `web/` and `models/` (about 2 s) and runs them. Bumping `SPOTTER_CODE_REV` forces a fresh start. If GitHub is unreachable, the code bundled in the zip runs instead. `/api/health` reports which code is live.
+
 **Cost:** pay-per-request only, with no server running 24/7. Bedrock is called only on escalations, not per frame. A $20 monthly spend limit is set on the account.
 
 ## 8. Responsible use
