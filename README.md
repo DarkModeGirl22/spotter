@@ -102,16 +102,28 @@ Each correction is verified on the next images, not assumed. When the next image
 
 Form rules are geometry normalised by body length, so they don't depend on distance: plank (hips low, hips high, knees down, collapse), squat (depth via a rep state machine, knees caving in), motion tracking for the other moves. **OpenCV 5 port:** the new DNN engine returns detector outputs in a different order than 4.x; we match them by tensor shape.
 
-### Results (evaluation)
+### Evaluation: what failed, what we changed, what it gives now
 
-| Test | Result |
-|---|---|
-| Plank faults on real video, every frame labeled | **74/74 frames correct**, 4/4 segments, person found in 98.7 % of frames |
-| Agent scenarios (good form, noise, fix, no fix, knees drop, stop and return, rest, no answer, Bedrock outage) | **10/10 pass** |
-| Robustness: far away / dark room / blur / low JPEG, before → after fixes | 64→**81 %** · 67→**83 %** · 88→**91 %** · 77→**84 %** |
-| Exercise recognition on real plank, squat, lunge videos | **0 false alarms**; wrong exercise detected in 4–8 s |
-| Latency on Lambda | OpenCV 5: **35–44 ms** warm; browser round trip **≈ 0.1 s** |
-| Unit tests | **13 pass** (`pytest`) |
+We did not only run tests that pass. We tested on real footage, on degraded images and on the phone, and kept every failure. Each one led to a change, and then to a test that stays in the repo so it can't come back.
+
+| # | Test (how we found it) | What failed | Why | What we changed | Now |
+|---|---|---|---|---|---|
+| 1 | First real photo through OpenCV 5 | No person ever detected | OpenCV 5's new DNN engine returns detector outputs in a different order than 4.x | Match outputs by tensor shape; threshold 0.5 → 0.35 | Person found in 98.7 % of frames |
+| 2 | Labelled plank video, every frame | A piked plank was also read as "collapsed", and a pike with bent knees as "knees down" | Low shoulders or bent knees alone are ambiguous | "Collapsed" only when hips aren't piked; "knees down" also needs knees near the floor | 73/74 → **74/74 frames correct** |
+| 3 | Replay of a real video through the agent | Coach said "Beautiful form!" when the person **walked out of the frame** | A fault that disappeared counted as "fixed" | Re-check passes only on a clean frame; otherwise `replaced_by`, no praise | Regression test in the agent scenarios |
+| 4 | Same frames made far away, dark, blurred, compressed | Accuracy far away **64 %**, dark room **67 %** (person lost in 16 % of frames), blur 88 %, low-quality JPEG 77 % | Too few pixels; low contrast; one bad ankle bends the body line; a threshold inside the noise | Zoom on the body and detect again; CLAHE when dark; average both body sides; thresholds moved out of the noise | **81 % · 83 % · 91 % · 84 %**. Still weak on hip sag far away and in the dark, so the camera check refuses those conditions |
+| 5 | Phone test (live) | The coach said "good" before saying she couldn't see the body; started too fast; repeated the same sentences | Timer-based start; one phrase per cue | Camera check: time to set up, start only after several good frames; varied phrases, never the same twice in a row | Tested with a dark frame, no person, wrong view |
+| 6 | Plank video run as squats | The camera check gave squat instructions to someone lying in a plank | The check didn't know floor vs standing exercises | Floor/standing aware check: "stand up", "turn the phone sideways" | Unit test |
+| 7 | Phone test | Timer kept running when the user stopped | No stop detection | Timer pauses at once: "You held 32 s. Continue or rest?"; resumes by itself when she sees you again | 3 agent scenarios (comes back · chooses rest · never comes back) |
+| 8 | Phone test | After answering "continue", the set paused again | A frame sent before the answer came back late with the old state | State version counter drops late responses | Fixed in the client |
+| 9 | **Plank video uploaded as squats** | Coach said "Form OK" and counted down | It only checked squat geometry, never *which* exercise is being done | Exercise recognition from pose signatures; asks "This looks like a plank. Should I coach it as a plank?" | Detected in 4–8 s; **0 false alarms** on real plank, squat and lunge videos ([REPORT §6.4](docs/REPORT.md#64-is-it-the-right-exercise-a-failed-test-then-a-fix)) |
+| 10 | Phone test | No voice on the phone | Mobile browsers block audio until a tap | Unlock one audio element on the first tap | Works on phone |
+| 11 | Phone test | Saying **"pause"** or **"end"** did nothing; she couldn't answer "am I doing it right?" | Only 4 voice intents, mic only used during the set | Voice commands and questions at any moment; form answers built from the last camera frames | 2 unit tests |
+| 12 | Bedrock access | Model access stayed locked | Use-case form needed | Deterministic decision policy; Bedrock used only when available, and any Bedrock error falls back to it | "Bedrock unavailable" scenario |
+
+**After these changes:** plank faults 74/74 frames on real video; the 10 agent scenarios in [REPORT §6.2](docs/REPORT.md#62-agent-task-success-failure-handling-human-control) (most of them written because of the failures above) and 13 unit tests all pass; on Lambda OpenCV 5 takes 35–44 ms per frame and the browser round trip is about 0.1 s.
+
+**Cloud path.** Bedrock model access stayed locked (use-case form), so the deterministic policy decides and Bedrock remains an option. CloudShell was blocked by account verification, so `deploy.sh` couldn't run there; we deployed the same zip through the Lambda console via S3. To avoid re-uploading on every change, the function now loads `server/`, `web/` and `models/` from this repo on each cold start (`SPOTTER_CODE_REPO`), falls back to the bundled code if GitHub is unreachable, and `/api/health` reports which code is live.
 
 ### Real-world impact
 
@@ -160,27 +172,6 @@ Phone browser ──JPEG every 0.4 s + agent state──▶ AWS Lambda (Python 3
 | Evaluation tools | `tools/`, `eval/` |
 
 ---
-
-## How we built it: what failed and how we fixed it
-
-We tested on real footage and on the phone after every change. Each failure became a fix and a test.
-
-| What went wrong | Why | What we did |
-|---|---|---|
-| OpenCV 5 never found a person | new DNN engine returns outputs in a different order | match outputs by shape; detector threshold 0.5 → 0.35 |
-| Piked plank read as "collapsed" or "knees down" | low shoulders / bent knees alone are ambiguous | "collapsed" only when hips aren't piked; "knees down" also needs knees near the floor |
-| Coach said "Beautiful form!" when the user walked away | a vanished fault counted as fixed | re-check passes only on a clean frame, otherwise `replaced_by` |
-| Far away: 64 % accuracy; dark room: person lost in 16 % of frames | few pixels, low contrast | zoom re-detect (→ 81 %), CLAHE (→ 83 %) |
-| Blur and compression flagged good form | one bad ankle bends the body line; threshold inside the noise | average both body sides, knee fallback, thresholds moved out of the noise band |
-| Coach started before she could see the user, and praised too early | timer-based start | camera check: 8 s to set up, starts only after several good frames |
-| Timer kept running when the user stopped | no stop detection | timer pauses, "You held 45 s. Continue or rest?", resumes by itself |
-| **Failed test:** plank video uploaded as squats, coach said "Form OK" | only checked squat geometry, never *which* exercise | exercise recognition from pose signatures; asks to switch ([REPORT §6.4](docs/REPORT.md#64-is-it-the-right-exercise-a-failed-test-then-a-fix)) |
-| Answering by buttons felt robotic | | voice answers, then voice commands and questions at any time ("pause", "end", "am I doing it right?") |
-| No voice on phones | mobile browsers block audio until a tap | unlock one audio element on the first tap |
-| Stale frame re-paused the set after the user answered | an in-flight request came back late | state version counter drops stale responses |
-| Coach repeated the same sentences | single phrase per cue | phrase lists, never the same line twice in a row |
-
-**Cloud path:** Bedrock model access stayed locked (use-case form), so the deterministic policy decides and Bedrock remains an option. CloudShell was blocked by account verification, so `deploy.sh` couldn't run there; we deployed the same zip through the Lambda console via S3. To avoid re-uploading on every change, the function now loads `server/`, `web/` and `models/` from this repo on each cold start (`SPOTTER_CODE_REPO`), falls back to the bundled code if GitHub is unreachable, and `/api/health` reports which code is live.
 
 ## What's next
 

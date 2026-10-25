@@ -138,6 +138,8 @@ Pose latency (person detector + pose model, CPU, one core of the development con
 
 Plus 13 unit tests (`pytest`).
 
+These scenarios are not a first attempt: most were written after a failure we found on real footage or on the phone (praise when the user walked away, the timer running while the user had stopped, a late frame re-pausing the set, Bedrock being unavailable). Each failure, its cause and its fix are listed in §6.5; the scenarios keep them from coming back.
+
 ### 6.3 Robustness: the same frames under real capture conditions
 
 A clean test video says little about a phone propped on a living-room floor. `python -m tools.eval_robustness` re-runs every labeled frame through the full OpenCV 5 pipeline after transforming it: mirrored, phone tilted, far away, close, dark room, motion blur, heavy JPEG compression, feet cut off. Frame accuracy, **before → after** the fixes in §6.5:
