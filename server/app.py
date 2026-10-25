@@ -4,13 +4,13 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import os
 import time
 from pathlib import Path
 
 import cv2 as cv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, Response
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .agent import brain, coach, voice
@@ -148,4 +148,45 @@ def on_error(_, exc):
     return JSONResponse({"error": type(exc).__name__}, status_code=500)
 
 
-app.mount("/", StaticFiles(directory=WEB, html=True), name="web")
+# ---- web app files. With SPOTTER_WEB_REPO set (e.g. DarkModeGirl22/spotter@main) the front end is
+# read from the public GitHub repo (cached 60 s), so UI updates go live without redeploying the
+# function; the copy bundled in the package is the fallback. Without it, only the bundled copy is used.
+WEB_REPO = os.environ.get("SPOTTER_WEB_REPO", "")
+_web_cache: dict[str, tuple[float, bytes]] = {}
+TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
+         ".css": "text/css; charset=utf-8", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8",
+         ".png": "image/png", ".svg": "image/svg+xml"}
+
+
+def _web_file(path: str) -> bytes | None:
+    if WEB_REPO:
+        hit = _web_cache.get(path)
+        if hit and time.time() - hit[0] < 60:
+            return hit[1]
+        repo, _, ref = WEB_REPO.partition("@")
+        try:
+            import urllib.request
+            url = f"https://raw.githubusercontent.com/{repo}/{ref or 'main'}/web/{path}"
+            with urllib.request.urlopen(url, timeout=3) as r:
+                data = r.read()
+            _web_cache[path] = (time.time(), data)
+            return data
+        except Exception:
+            pass
+    f = (WEB / path).resolve()
+    if WEB in f.parents and f.is_file():
+        return f.read_bytes()
+    return None
+
+
+@app.get("/{path:path}")
+def web(path: str):
+    path = path or "index.html"
+    if ".." in path or path.startswith("api/"):
+        raise HTTPException(404)
+    data = _web_file(path)
+    if data is None:
+        raise HTTPException(404)
+    ext = Path(path).suffix
+    cache = "no-cache" if ext in (".html", ".js", ".css") else "public, max-age=86400"
+    return Response(data, media_type=TYPES.get(ext, "application/octet-stream"), headers={"Cache-Control": cache})

@@ -42,14 +42,19 @@ function renderHome() {
     cards.appendChild(el);
   }
 }
-function chooseMode(m) {
-  $("modeLive").classList.toggle("on", m === "live");
-  $("modeVideo").classList.toggle("on", m === "video");
-  $("livePanel").hidden = m !== "live";
-  $("videoPanel").hidden = m !== "video";
+// ---------- pages: #/ (home), #/live, #/video. The browser / phone back button works.
+const PAGES = { "": "home", live: "livePage", video: "videoPage" };
+function showPage() {
+  if (phase && phase !== "done") return;           // never leave a running workout by accident
+  const key = location.hash.replace(/^#\/?/, "");
+  const id = PAGES[key] || "home";
+  for (const p of ["home", "livePage", "videoPage", "workout", "done"]) $(p).hidden = p !== id;
+  window.scrollTo(0, 0);
 }
-$("modeLive").onclick = () => { sourceFile = null; chooseMode("live"); };
-$("modeVideo").onclick = () => chooseMode("video");
+window.addEventListener("hashchange", showPage);
+$("modeLive").onclick = () => { sourceFile = null; location.hash = "#/live"; };
+$("modeVideo").onclick = () => { location.hash = "#/video"; };
+document.querySelectorAll("[data-back]").forEach((b) => { b.onclick = () => history.back(); });
 for (const w of Object.values(WORKOUTS)) for (const it of w.items) {
   const o = document.createElement("option");
   o.value = it.id; o.textContent = `${it.name} (${w.name.toLowerCase()})`;
@@ -152,7 +157,8 @@ async function start(key) {
   frozen = null;
   stats = { stops: 0, corrections: 0, fixed: 0, fixTimes: [], planChanges: 0, questions: 0, frames: 0, latency: [] };
   traceLog = [];
-  $("home").hidden = true; $("workout").hidden = false; $("done").hidden = true;
+  for (const p of ["home", "livePage", "videoPage", "done"]) $(p).hidden = true;
+  $("workout").hidden = false;
   if (!coach) coach = new window.Coach($("coachCanvas"));
   try { await openSource(); } catch (e) {
     alert("Camera not available: " + e.message); return finish();
@@ -405,7 +411,7 @@ $("btnTrace").onclick = () => { $("trace").hidden = !$("trace").hidden; };
 $("btnTraceX").onclick = () => { $("trace").hidden = true; };
 $("btnTraceDl").onclick = downloadTrace;
 $("btnDl").onclick = downloadTrace;
-$("btnHome").onclick = () => { $("done").hidden = true; $("home").hidden = false; };
+$("btnHome").onclick = () => { phase = null; location.hash = "#/"; showPage(); };
 
 async function post(url, body) {
   const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -441,4 +447,5 @@ function tick() {
   }
 }
 renderHome();
+showPage();
 requestAnimationFrame(tick);

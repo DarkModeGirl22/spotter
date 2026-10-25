@@ -160,3 +160,9 @@ button { font-family: var(--head); cursor: pointer; }
 .mic .dot { display: inline-block; width: 8px; height: 8px; background: var(--red); margin-right: 8px; animation: blink 1.2s infinite; }
 @keyframes blink { 50% { opacity: .2; } }
 .ask-hint { font: 500 13px var(--body); color: var(--mute); margin: -8px 0 10px; }
+
+/* pages */
+.back { background: none; border: 0; font: 700 14px var(--head); color: var(--ink); padding: 8px 8px 8px 0; letter-spacing: .02em; }
+.back:hover { color: var(--red); }
+.topbar .back + .brand { margin-right: auto; margin-left: 8px; }
+.hero-small h1 { font-size: 30px; }

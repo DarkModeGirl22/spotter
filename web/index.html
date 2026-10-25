@@ -37,13 +37,41 @@
       </button>
     </div>
 
-    <div id="livePanel" hidden>
-      <div class="section-title">Choose your workout</div>
-      <div class="cards" id="cards"></div>
-    </div>
+    <p class="fine">Frames are analyzed and discarded. Nothing is recorded or stored. If something hurts, stop.</p>
+  </main>
+</section>
 
-    <div id="videoPanel" class="video-form" hidden>
-      <div class="section-title">Upload a video</div>
+<!-- PRACTICE LIVE: pick a workout -->
+<section id="livePage" class="screen" hidden>
+  <header class="topbar">
+    <button class="back" data-back>‹ Back</button>
+    <div class="brand">SPOTTER</div>
+    <div class="tag">LIVE</div>
+  </header>
+  <div class="hero hero-small">
+    <div class="eyebrow">Practice live</div>
+    <h1>Choose your <em>workout.</em></h1>
+    <p>4 moves · 60 seconds each · 30 seconds rest. Your coach checks your camera before every move.</p>
+  </div>
+  <main class="content">
+    <div class="cards" id="cards"></div>
+  </main>
+</section>
+
+<!-- UPLOAD A VIDEO -->
+<section id="videoPage" class="screen" hidden>
+  <header class="topbar">
+    <button class="back" data-back>‹ Back</button>
+    <div class="brand">SPOTTER</div>
+    <div class="tag">VIDEO</div>
+  </header>
+  <div class="hero hero-small">
+    <div class="eyebrow">Upload a video</div>
+    <h1>Get coached on a <em>recording.</em></h1>
+    <p>Pick the exercise you filmed. The coach watches the clip and talks you through it.</p>
+  </div>
+  <main class="content">
+    <div class="video-form">
       <label class="field">
         <span>Exercise in the video</span>
         <select id="exSelect"></select>
@@ -54,8 +82,6 @@
       </label>
       <button class="btn btn-red btn-block" id="btnAnalyze" disabled>Start coaching</button>
     </div>
-
-    <p class="fine">Frames are analyzed and discarded. Nothing is recorded or stored. If something hurts, stop.</p>
   </main>
 </section>
 
