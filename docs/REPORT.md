@@ -2,6 +2,7 @@
 
 **A talking workout coach that watches your form with OpenCV 5 and changes the plan when your body needs it.**
 OpenCV AI Competition 2026 · Agentic Vision path · Team: Hind Taouis
+Demo video: https://youtu.be/iXDpT73NZRU · Live app: https://3iblqdeawzjnsky7ihd6gu3jn40giofz.lambda-url.eu-north-1.on.aws/
 
 ---
 

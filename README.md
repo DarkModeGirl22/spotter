@@ -7,6 +7,8 @@ OpenCV AI Competition 2026 (powered by AWS) · Agentic Vision path · Team: Hind
 🟢 **Live on AWS Lambda:** https://3iblqdeawzjnsky7ihd6gu3jn40giofz.lambda-url.eu-north-1.on.aws/
 (open it on a phone or in Chrome, allow camera and microphone)
 
+🎬 **Demo video (2 min 40 s):** https://youtu.be/iXDpT73NZRU
+
 ---
 
 ## Submission checklist
@@ -18,7 +20,7 @@ OpenCV AI Competition 2026 (powered by AWS) · Agentic Vision path · Team: Hind
 | 3 | Pinned dependencies + build, deploy, test instructions | [requirements.txt](requirements.txt) · [Run](#run-locally) · [Deploy](#deploy-to-aws) · [Test](#test-and-reproduce-the-evaluation) |
 | 4 | Architecture diagram (OpenCV 5 + AWS + agent) | [docs/img/architecture.png](docs/img/architecture.png) |
 | 5 | Working web endpoint | live link above · health check: [/api/health](https://3iblqdeawzjnsky7ihd6gu3jn40giofz.lambda-url.eu-north-1.on.aws/api/health) |
-| 6 | Video (≤ 5 min) | link on the Devpost page |
+| 6 | Video (≤ 5 min) | [youtu.be/iXDpT73NZRU](https://youtu.be/iXDpT73NZRU) |
 | 7 | Evaluation with failure cases | [REPORT §6](docs/REPORT.md#6-evaluation) · [docs/eval/](docs/eval/) |
 | + | Agentic Vision: agent workflow diagram | [docs/img/agent_loop.png](docs/img/agent_loop.png) |
 | + | Agentic Vision: trace where OpenCV output changes a later decision | [trace strip](docs/img/trace_strip.jpg) · [replay trace](docs/eval/replay_plank/) |
