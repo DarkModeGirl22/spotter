@@ -131,6 +131,15 @@ class HearIn(BaseModel):
     next: str | None = None        # name of the next exercise
 
 
+@app.get("/api/agent-check")
+def agent_check():
+    """One real plan-change decision on a fixed vision report: shows whether the model or the rules decided."""
+    from .agent import brain
+    ctx = {"exercise": "plank", "variant": "standard", "fault": "hips_low", "fault_count": 3,
+           "seconds_left": 35, "cues_given": 2, "metrics": {"hip_deviation": 0.11}}
+    return {"model": brain.MODEL_ID or None, "context": ctx, "decision": brain.decide(ctx)}
+
+
 @app.post("/api/hear")
 def hear(body: HearIn):
     """The user spoke to the coach (browser speech-to-text): understand it and act."""

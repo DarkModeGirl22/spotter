@@ -1,7 +1,7 @@
 """The coach's decision maker for plan changes.
 
 When the vision loop sees that a quick cue did not fix a problem, it escalates here.
-Amazon Bedrock (Claude, Converse API with tool use) picks ONE tool to call. If Bedrock is not
+An Amazon Bedrock model (Converse API with tool use, e.g. Amazon Nova) picks ONE tool to call. If Bedrock is not
 configured or fails, a deterministic policy picks instead, so the coach never stalls.
 Every decision records who made it (`decided_by`) for the trace.
 """
@@ -11,7 +11,7 @@ import json
 import os
 import time
 
-MODEL_ID = os.environ.get("SPOTTER_MODEL_ID", "")          # e.g. an Anthropic Claude model or inference profile id
+MODEL_ID = os.environ.get("SPOTTER_MODEL_ID", "")          # Bedrock model or inference profile id, e.g. eu.amazon.nova-lite-v1:0
 REGION = os.environ.get("SPOTTER_BEDROCK_REGION", os.environ.get("AWS_REGION", "eu-north-1"))
 
 TOOLS = [
@@ -88,7 +88,7 @@ def decide(ctx: dict) -> dict:
                             "latency_ms": round((time.perf_counter() - t0) * 1000)}
         except Exception as exc:  # network, permissions, throttling -> safe fallback
             out = fallback_policy(ctx)
-            out.update(decided_by="rules", error=type(exc).__name__,
+            out.update(decided_by="rules", error=f"{type(exc).__name__}: {str(exc)[:160]}",
                        latency_ms=round((time.perf_counter() - t0) * 1000))
             return out
     out = fallback_policy(ctx)
